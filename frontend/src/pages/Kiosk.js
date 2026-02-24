@@ -67,8 +67,16 @@ function Kiosk() {
       </div>
 
       {/* RIGHT HALF */}
-      {/* DYNAMIC BACKGROUND COLOR */}
-      <div className="kiosk-right" style={{ backgroundColor: settings.secondary_color }}>
+      <div 
+        className="kiosk-right" 
+        style={{ 
+          backgroundColor: settings.secondary_color,
+          // This creates the repeating dot pattern!
+          backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.15) 2px, transparent 2px)',
+          backgroundSize: '30px 30px',
+          backgroundPosition: '0 0'
+        }}
+      >
         <div className="right-top-space"></div>
 
         <div className="video-wrapper">
