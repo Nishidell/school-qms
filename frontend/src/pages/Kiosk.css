@@ -98,3 +98,68 @@
     height: 100%;
     object-fit: cover;
 }
+
+/* --- PRINT RECEIPT STYLES --- */
+
+/* Hide the receipt on the normal computer screen */
+.receipt-container {
+    display: none;
+}
+
+/* When window.print() is called, this block activates! */
+@media print {
+    /* Hide the normal Kiosk UI */
+    .kiosk-container {
+        display: none !important;
+    }
+
+    /* Show the receipt, formatted for a small thermal printer */
+    .receipt-container {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: 300px; /* Standard thermal printer width */
+        padding: 20px;
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace; /* Classic receipt font */
+        color: black;
+    }
+
+    /* Remove browser headers and footers (URL, Date, Page Numbers) */
+    @page {
+        margin: 0;
+    }
+    body {
+        margin: 1cm;
+    }
+}
+
+/* Styling the inside of the receipt */
+.receipt-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.receipt-ticket-number {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin: 15px 0;
+    border-top: 2px dashed black;
+    border-bottom: 2px dashed black;
+    padding: 10px 0;
+}
+
+.receipt-details {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.receipt-footer {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: #555;
+}

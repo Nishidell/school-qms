@@ -6,6 +6,8 @@ function Kiosk() {
   const [services, setServices] = useState([]);
   const [studentName, setStudentName] = useState('');
   const [selectedService, setSelectedService] = useState('');
+
+  const [printedTicket, setPrintedTicket] = useState(null);
   
   // NEW: State to hold our dynamic settings
   const [settings, setSettings] = useState({
@@ -28,7 +30,7 @@ function Kiosk() {
       .catch(err => console.error(err));
   }, []);
 
-  const handleGetTicket = async (e) => {
+ const handleGetTicket = async (e) => {
     e.preventDefault();
     if (!selectedService) return alert("Please select a service");
 
@@ -36,14 +38,31 @@ function Kiosk() {
       const res = await axios.post('http://localhost:5001/api/tickets', { 
         studentName, serviceType: selectedService 
       });
-      alert(`Success! ${studentName}, your ticket is: ${res.data.ticketNumber}`);
+      
+      // 1. Save the ticket details for the receipt
+      setPrintedTicket({
+        ticketNumber: res.data.ticketNumber,
+        name: studentName,
+        service: selectedService,
+        date: new Date().toLocaleString()
+      });
+
+      // 2. Clear the form for the next student
       setStudentName('');
+      setSelectedService('');
+
+      // 3. Wait a tiny fraction of a second for React to render the receipt, then print!
+      setTimeout(() => {
+        window.print();
+      }, 500);
+
     } catch (err) {
       console.error(err);
     }
   };
 
   return (
+    <>
     <div className="kiosk-container">
       
       {/* LEFT HALF */}
@@ -92,8 +111,48 @@ function Kiosk() {
         <div className="right-bottom-space"></div>
       </div>
       
-    </div>
+    </div> 
+      
+      {/* --- HIDDEN PRINT RECEIPT --- */}
+      {printedTicket && (
+        <div className="receipt-container">
+          {/* Logo on Receipt (if available) */}
+          {settings.logo_path && (
+            <img 
+              src={`http://localhost:5001/uploads/${settings.logo_path}`} 
+              alt="Logo" 
+              style={{ maxWidth: '100px', marginBottom: '10px', filter: 'grayscale(100%)' }} 
+            />
+          )}
+          
+          <div className="receipt-header">
+            QUEUE SYSTEM
+          </div>
+          
+          <div className="receipt-details">
+            <strong>Name:</strong> {printedTicket.name}
+          </div>
+          <div className="receipt-details">
+            <strong>Dept:</strong> {printedTicket.service}
+          </div>
+
+          <div className="receipt-ticket-number">
+            {printedTicket.ticketNumber}
+          </div>
+
+          <div className="receipt-details" style={{ textAlign: 'center', fontSize: '0.9rem' }}>
+            {printedTicket.date}
+          </div>
+          
+          <div className="receipt-footer">
+            Please wait for your number to be called.<br/>Thank you!
+          </div>
+        </div>
+      )}
+
+    </>
   );
 }
 
 export default Kiosk;
+
