@@ -15,6 +15,9 @@ app.use(express.json());
 const ticketRoutes = require('./routes/ticketRoutes');
 app.use('/api/tickets', ticketRoutes);
 
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 app.get('/', (req, res) => {
   res.send('School Queueing System API is running on XAMPP MySQL...');
 });
