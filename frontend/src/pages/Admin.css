@@ -1,0 +1,117 @@
+/* Admin.css */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+}
+
+.admin-sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar h2 {
+    text-align: center;
+    border-bottom: 1px solid #34495e;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.sidebar-btn {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    text-align: left;
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+    margin-bottom: 5px;
+}
+
+.sidebar-btn:hover, .sidebar-btn.active {
+    background-color: #34495e;
+    font-weight: bold;
+}
+
+.logout-btn {
+    margin-top: auto; /* Pushes it to the bottom */
+    background-color: #e74c3c;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+.admin-main {
+    flex: 1;
+    padding: 40px;
+}
+
+.admin-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.admin-form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.admin-input, .admin-select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.admin-btn-primary {
+    padding: 10px 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.admin-table th, .admin-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+.btn-danger {
+    color: white;
+    background-color: #e74c3c;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}

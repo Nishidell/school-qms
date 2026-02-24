@@ -18,6 +18,8 @@ app.use('/api/tickets', ticketRoutes);
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
+app.use('/api/users', require('./routes/userRoutes'));
+
 app.use('/api/services', require('./routes/serviceRoutes'));
 
 app.get('/', (req, res) => {

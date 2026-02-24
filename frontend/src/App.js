@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Kiosk from './Kiosk';
-import Display from './Display';
-import Admin from './Admin'
-import Login from './Login';
-import EmployeeDashboard from './EmployeeDashboard';
+import Kiosk from './pages/Kiosk';
+import Display from './pages/Display';
+import Admin from './pages/Admin';
+import Login from './pages/Login';
+import EmployeeDashboard from './pages/EmployeeDashboard';
+import './App.css';
 
 function App() {
   return (
