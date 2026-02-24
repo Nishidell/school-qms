@@ -60,4 +60,33 @@ router.post('/upload-video', upload.single('video'), (req, res) => {
   });
 });
 
+// --- CAROUSEL ROUTES ---
+
+// GET all carousel images
+router.get('/carousel', (req, res) => {
+  db.query("SELECT * FROM carousel_images ORDER BY uploaded_at DESC", (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// UPLOAD a new carousel image
+router.post('/upload-carousel', upload.single('carousel_image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+
+  const imagePath = req.file.filename;
+  db.query("INSERT INTO carousel_images (image_path) VALUES (?)", [imagePath], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Carousel image added!", image_path: imagePath });
+  });
+});
+
+// DELETE a carousel image
+router.delete('/carousel/:id', (req, res) => {
+  db.query("DELETE FROM carousel_images WHERE id = ?", [req.params.id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Image removed from carousel" });
+  });
+});
+
 module.exports = router;

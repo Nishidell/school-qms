@@ -27,6 +27,9 @@ function Admin() {
   const [videoFile, setVideoFile] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
 
+  const [carouselImages, setCarouselImages] = useState([]);
+  const [newCarouselFile, setNewCarouselFile] = useState(null);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return navigate('/login');
@@ -42,6 +45,7 @@ function Admin() {
 
     fetchServices();
     fetchUsers();
+    fetchCarousel();
     fetchSettings();
   }, [navigate]);
 
@@ -64,6 +68,30 @@ function Admin() {
     }
   };
 
+  const fetchCarousel = async () => {
+  const res = await axios.get('http://localhost:5001/api/settings/carousel');
+  setCarouselImages(res.data);
+};
+
+  const handleUploadCarousel = async (e) => {
+    e.preventDefault();
+    if (!newCarouselFile) return alert("Select an image first");
+    const formData = new FormData();
+    formData.append('carousel_image', newCarouselFile);
+    try {
+      await axios.post('http://localhost:5001/api/settings/upload-carousel', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+      setNewCarouselFile(null);
+      fetchCarousel();
+      alert("Image added to login carousel!");
+    } catch (err) { console.error(err); }
+  };
+
+  const deleteCarouselImage = async (id) => {
+    if(window.confirm("Remove this image from the slideshow?")) {
+      await axios.delete(`http://localhost:5001/api/settings/carousel/${id}`);
+      fetchCarousel();
+    }
+  };
   // --- SETTINGS LOGIC (SUPERADMIN) ---
   const handleUpdateColors = async (e) => {
     e.preventDefault();
@@ -260,6 +288,26 @@ function Admin() {
               <button type="submit" className="admin-btn-primary" style={{ backgroundColor: primaryColor }}>Upload Logo</button>
             </form>
           </div>
+
+          <div className="admin-card" style={{ borderTop: `5px solid ${primaryColor}` }}>
+           <h3>📸 Login Page Slideshow</h3>
+           <p style={{ color: 'gray' }}>Upload images for the login screen carousel.</p>
+
+           <form onSubmit={handleUploadCarousel} className="admin-form" style={{ marginTop: '20px', marginBottom: '20px' }}>
+             <input type="file" accept="image/png, image/jpeg" onChange={e => setNewCarouselFile(e.target.files[0])} className="admin-input" />
+             <button type="submit" className="admin-btn-primary" style={{ backgroundColor: primaryColor }}>Add to Slideshow</button>
+           </form>
+
+           {/* Show the uploaded images */}
+           <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+             {carouselImages.map(img => (
+               <div key={img.id} style={{ position: 'relative', minWidth: '150px' }}>
+                 <img src={`http://localhost:5001/uploads/${img.image_path}`} alt="Carousel" style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                 <button onClick={() => deleteCarouselImage(img.id)} style={{ position: 'absolute', top: '5px', right: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer' }}>X</button>
+               </div>
+             ))}
+           </div>
+         </div>
 
             <div className="admin-card" style={{ borderTop: `5px solid ${secondaryColor}` }}>
               <h3><FaVideo /> Kiosk & Display Video</h3>
