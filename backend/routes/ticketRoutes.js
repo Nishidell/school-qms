@@ -106,4 +106,15 @@ router.post('/', (req, res) => {
   });
 });
   
+// GET 'SERVING' TICKETS (For the TV Display)
+router.get('/serving', (req, res) => {
+  // We fetch tickets marked 'serving', ordering by ID descending so the newest is first
+  const sql = "SELECT * FROM tickets WHERE status = 'serving' ORDER BY id DESC LIMIT 6";
+  
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
 module.exports = router;

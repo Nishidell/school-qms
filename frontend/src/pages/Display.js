@@ -1,30 +1,77 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './Display.css';
 
 function Display() {
-  const [tickets, setTickets] = useState([]);
+  const [activeCounters, setActiveCounters] = useState([]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      axios.get('http://localhost:5001/api/tickets')
-        .then(res => setTickets(res.data))
-        .catch(err => console.error(err));
-    }, 3000); // Automatically refreshes every 3 seconds
+    const fetchServing = async () => {
+      try {
+        const res = await axios.get('http://localhost:5001/api/tickets/serving');
+        const tickets = res.data;
+        
+        // LOGIC: We only want the LATEST ticket for each unique counter.
+        // Since the backend returns them ordered by newest first (DESC), 
+        // the first time we see a counter, it's their current ticket!
+        const uniqueCounters = {};
+        tickets.forEach(ticket => {
+          if (!uniqueCounters[ticket.counter]) {
+            uniqueCounters[ticket.counter] = ticket;
+          }
+        });
+
+        // Convert the object back to an array and sort them by Counter number (1, 2, 3...)
+        const sortedCounters = Object.values(uniqueCounters).sort((a, b) => a.counter - b.counter);
+        
+        setActiveCounters(sortedCounters);
+      } catch (err) {
+        console.error("Error fetching display tickets:", err);
+      }
+    };
+
+    fetchServing();
+    const interval = setInterval(fetchServing, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div style={{ padding: '50px', backgroundColor: '#282c34', color: 'white', minHeight: '100vh', textAlign: 'center' }}>
-      <h1 style={{ fontSize: '50px' }}>NOW SERVING</h1>
-      <hr />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '30px' }}>
-        {tickets.slice(0, 6).map(ticket => (
-          <div key={ticket.id} style={{ border: '2px solid white', padding: '20px', borderRadius: '15px' }}>
-            <h2 style={{ fontSize: '80px', margin: '0' }}>{ticket.ticketNumber}</h2>
-            <p style={{ fontSize: '20px' }}>{ticket.serviceType}</p>
-          </div>
-        ))}
+    <div className="display-container">
+      
+      {/* HEADER: Logo, Video, Blank */}
+      <div className="display-header">
+        <div className="header-box">
+          <h2 style={{ color: 'gray' }}>[ Logo Area ]</h2>
+        </div>
+        
+        <div className="header-video">
+          <video autoPlay muted loop playsInline>
+            {/* Make sure the video name matches your file in the public folder! */}
+            <source src={`${process.env.PUBLIC_URL}/school-video.mp4`} type="video/mp4" />
+          </video>
+        </div>
+        
+        <div className="header-box">
+          <h2 style={{ color: 'gray' }}>[ Blank Area ]</h2>
+        </div>
       </div>
+
+      {/* MAIN BODY: The Auto-Scaling Grid */}
+      <div className="display-body">
+        {activeCounters.length === 0 ? (
+          <h1 style={{ textAlign: 'center', color: 'gray', fontSize: '3rem' }}>Waiting for tickets...</h1>
+        ) : (
+          <div className="windows-grid">
+            {activeCounters.map(ticket => (
+              <div key={ticket.counter} className="window-card">
+                <h2 className="window-title">Counter {ticket.counter}</h2>
+                <h1 className="window-ticket">{ticket.ticketNumber}</h1>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }
