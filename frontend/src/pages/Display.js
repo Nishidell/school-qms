@@ -12,6 +12,15 @@ function Display() {
     video_path: ''
   });
 
+  // Clock state
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     // Fetch Settings
     axios.get('http://localhost:5001/api/settings').then(res => {
@@ -64,8 +73,26 @@ function Display() {
           </video>
         </div>
         
-        <div className="header-box">
-          <h2 style={{ color: 'white' }}>[ Blank Area ]</h2>
+        <div className="header-box" style={{ backgroundColor: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', paddingRight: '40px' }}>
+          <h1 style={{ 
+            fontSize: '4rem', 
+            margin: '0', 
+            color: 'white', 
+            textShadow: `0 0 15px ${settings.primary_color}80`,
+            fontWeight: 'bold',
+            lineHeight: '1'
+          }}>
+            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </h1>
+          <h3 style={{ 
+            fontSize: '1.5rem', 
+            margin: '5px 0 0 0', 
+            color: settings.primary_color,
+            textTransform: 'uppercase',
+            letterSpacing: '2px'
+          }}>
+            {currentTime.toLocaleDateString([], { weekday: 'short', month: 'long', day: 'numeric' })}
+          </h3>
         </div>
       </div>
 
