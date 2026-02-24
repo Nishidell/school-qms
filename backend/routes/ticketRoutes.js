@@ -4,9 +4,19 @@ const db = require('../db'); // This imports the XAMPP connection we just made!
 
 // 1. GET ALL WAITING TICKETS
 router.get('/', (req, res) => {
-  const sql = "SELECT * FROM tickets WHERE status = 'waiting' ORDER BY createdAt ASC";
+  const dept = req.query.dept; // This comes from the URL (e.g., ?dept=Registrar)
   
-  db.query(sql, (err, results) => {
+  let sql = "SELECT * FROM tickets WHERE status = 'waiting'";
+  let params = [];
+
+  if (dept && dept !== 'all') {
+    sql += " AND serviceType = ?";
+    params.push(dept);
+  }
+
+  sql += " ORDER BY createdAt ASC";
+
+  db.query(sql, params, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });
@@ -14,31 +24,28 @@ router.get('/', (req, res) => {
 
 // 2. CREATE A NEW TICKET
 router.post('/', (req, res) => {
-  const serviceType = req.body.serviceType || 'General';
-
-  // First, count how many tickets exist to make the next number (e.g., A-1, A-2)
-  const countSql = "SELECT COUNT(*) AS count FROM tickets";
+  const { serviceType } = req.body;
   
-  db.query(countSql, (err, countResults) => {
-    if (err) return res.status(500).json({ error: err.message });
+  // Logic to determine prefix
+  let prefix = 'G'; // Default 'General'
+  if (serviceType === 'Registrar') prefix = 'R';
+  if (serviceType === 'Cashier') prefix = 'C';
+  if (serviceType === 'Complaints') prefix = 'X';
 
-    const totalTickets = countResults[0].count;
-    const newTicketNumber = `A-${totalTickets + 1}`;
-
-    // Now, insert the new ticket into the XAMPP database
+  // Count how many of THIS specific prefix exist today
+  const countSql = "SELECT COUNT(*) AS count FROM tickets WHERE ticketNumber LIKE ?";
+  
+  db.query(countSql, [`${prefix}-%`], (err, countResults) => {
+    const newNumber = `${prefix}-${countResults[0].count + 1}`;
     const insertSql = "INSERT INTO tickets (ticketNumber, serviceType) VALUES (?, ?)";
     
-    db.query(insertSql, [newTicketNumber, serviceType], (err, result) => {
+    db.query(insertSql, [newNumber, serviceType], (err, result) => {
       if (err) return res.status(500).json({ error: err.message });
-
-      res.status(201).json({
-        id: result.insertId,
-        ticketNumber: newTicketNumber,
-        serviceType: serviceType,
-        status: 'waiting'
-      });
+      res.status(201).json({ ticketNumber: newNumber });
     });
   });
+});
+
   // 3. CALL NEXT TICKET (Update status to 'serving')
   router.put('/call-next', (req, res) => {
   const { counter } = req.body;
@@ -61,7 +68,32 @@ router.post('/', (req, res) => {
     });
   });
 });
-  
-});
 
+router.post('/', (req, res) => {
+  const { serviceType } = req.body;
+
+  // 1. Get the prefix from the services table
+  const serviceSql = "SELECT prefix FROM services WHERE service_name = ?";
+  
+  db.query(serviceSql, [serviceType], (err, serviceResult) => {
+    if (err || serviceResult.length === 0) return res.status(400).json({ error: "Invalid Service" });
+
+    const prefix = serviceResult[0].prefix;
+
+    // 2. Count existing tickets for THIS prefix to get the next number
+    const countSql = "SELECT COUNT(*) AS count FROM tickets WHERE ticketNumber LIKE ?";
+    
+    db.query(countSql, [`${prefix}-%`], (err, countResults) => {
+      const newNumber = `${prefix}-${countResults[0].count + 1}`;
+
+      // 3. Insert the new ticket
+      const insertSql = "INSERT INTO tickets (ticketNumber, serviceType) VALUES (?, ?)";
+      db.query(insertSql, [newNumber, serviceType], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(201).json({ ticketNumber: newNumber });
+      });
+    });
+  });
+});
+  
 module.exports = router;
