@@ -6,11 +6,25 @@ function Kiosk() {
   const [services, setServices] = useState([]);
   const [studentName, setStudentName] = useState('');
   const [selectedService, setSelectedService] = useState('');
+  
+  // NEW: State to hold our dynamic settings
+  const [settings, setSettings] = useState({
+    primary_color: '#27ae60', // Default green
+    secondary_color: '#2c3e50', // Default dark blue
+    video_path: ''
+  });
 
-  // Fetch the latest services from the Admin's database
   useEffect(() => {
+    // Fetch Services
     axios.get('http://localhost:5001/api/services')
       .then(res => setServices(res.data))
+      .catch(err => console.error(err));
+
+    // NEW: Fetch Settings
+    axios.get('http://localhost:5001/api/settings')
+      .then(res => {
+        if (res.data) setSettings(res.data);
+      })
       .catch(err => console.error(err));
   }, []);
 
@@ -20,8 +34,7 @@ function Kiosk() {
 
     try {
       const res = await axios.post('http://localhost:5001/api/tickets', { 
-        studentName, // We should add a 'studentName' column to the tickets table in MySQL!
-        serviceType: selectedService 
+        studentName, serviceType: selectedService 
       });
       alert(`Success! ${studentName}, your ticket is: ${res.data.ticketNumber}`);
       setStudentName('');
@@ -31,60 +44,48 @@ function Kiosk() {
   };
 
   return (
-  <div className="kiosk-container">
-    <div className="kiosk-left">
-      <h1>Welcome, Student!</h1>
-      <form onSubmit={handleGetTicket} className="kiosk-form">
-        <label>Full Name:</label>
-        <input 
-          className="kiosk-input"
-          value={studentName} 
-          onChange={(e) => setStudentName(e.target.value)} 
-          placeholder="Enter your name" 
-          required 
-        />
-        
-        <label>Select Service:</label>
-        <select 
-          className="kiosk-input"
-          value={selectedService} 
-          onChange={(e) => setSelectedService(e.target.value)} 
-          required
-        >
-          <option value="">-- Choose a Department --</option>
-          {services.map(s => (
-            <option key={s.id} value={s.service_name}>{s.service_name}</option>
-          ))}
-        </select>
+    <div className="kiosk-container">
+      
+      {/* LEFT HALF */}
+      <div className="kiosk-left">
+        <h1 style={{ color: settings.secondary_color }}>Welcome, Student!</h1>
+        <form onSubmit={handleGetTicket} className="kiosk-form">
+          <label>Full Name:</label>
+          <input className="kiosk-input" value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Enter your name" required />
+          
+          <label>Select Service:</label>
+          <select className="kiosk-input" value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required>
+            <option value="">-- Choose a Department --</option>
+            {services.map(s => <option key={s.id} value={s.service_name}>{s.service_name}</option>)}
+          </select>
 
-        <button type="submit" className="kiosk-btn">PRINT TICKET</button>
-      </form>
-    </div>
+          {/* DYNAMIC BUTTON COLOR */}
+          <button type="submit" className="kiosk-btn" style={{ backgroundColor: settings.primary_color }}>
+            PRINT TICKET
+          </button>
+        </form>
+      </div>
 
-    {/* RIGHT HALF: School Video/Branding */}
-      <div className="kiosk-right">
-        
-        {/* Extra Space Above */}
-        <div className="right-top-space">
-            {/* You can put a School Logo or "Announcements" text here later */}
-        </div>
+      {/* RIGHT HALF */}
+      {/* DYNAMIC BACKGROUND COLOR */}
+      <div className="kiosk-right" style={{ backgroundColor: settings.secondary_color }}>
+        <div className="right-top-space"></div>
 
-        {/* The Video */}
         <div className="video-wrapper">
-          <video autoPlay muted loop playsInline className="video-player">
-            <source src={`${process.env.PUBLIC_URL}/ELECTRON.mp4`} type="video/mp4" />
+          {/* REACT MAGIC TRICK: Changing the 'key' forces the video player to reload when a new video is uploaded! */}
+          <video key={settings.video_path} autoPlay muted loop playsInline className="video-player">
+            <source 
+              src={settings.video_path ? `http://localhost:5001/uploads/${settings.video_path}` : `${process.env.PUBLIC_URL}/school-video.mp4`} 
+              type="video/mp4" 
+            />
           </video>
         </div>
 
-        {/* Extra Space Below */}
-        <div className="right-bottom-space">
-            {/* You can put a running ticker or date/time here later */}
-        </div>
-
+        <div className="right-bottom-space"></div>
       </div>
-  </div>
+      
+    </div>
   );
 }
-
 
 export default Kiosk;

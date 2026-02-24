@@ -7,16 +7,16 @@ function Login() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5001/api/auth/login', { username, password });
-      localStorage.setItem('token', res.data.token); // Save login session
+      localStorage.setItem('token', res.data.token); 
       
-      if (res.data.role === 'admin') {
+      if (res.data.role === 'admin' || res.data.role === 'superadmin') {
         navigate('/admin');
       } else {
-        navigate('/employee'); // We will create this next
+        navigate('/employee'); 
       }
     } catch (err) {
       alert("Login Failed: Check your credentials");

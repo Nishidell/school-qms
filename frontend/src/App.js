@@ -1,10 +1,13 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Kiosk from './pages/Kiosk';
 import Display from './pages/Display';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import EmployeeDashboard from './pages/EmployeeDashboard';
-import './App.css';
+
+import './App.css'; 
 
 function App() {
   return (
@@ -12,8 +15,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Kiosk />} />
         <Route path="/display" element={<Display />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="login" element={<Login />} />
         <Route path="/employee" element={<EmployeeDashboard />} />
       </Routes>
     </Router>

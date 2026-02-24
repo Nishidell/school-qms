@@ -4,30 +4,33 @@ import './Display.css';
 
 function Display() {
   const [activeCounters, setActiveCounters] = useState([]);
+  
+  // Settings state
+  const [settings, setSettings] = useState({
+    primary_color: '#f1c40f', 
+    secondary_color: '#1b263b', 
+    video_path: ''
+  });
 
   useEffect(() => {
+    // Fetch Settings
+    axios.get('http://localhost:5001/api/settings').then(res => {
+      if (res.data) setSettings(res.data);
+    }).catch(err => console.error(err));
+
     const fetchServing = async () => {
       try {
         const res = await axios.get('http://localhost:5001/api/tickets/serving');
         const tickets = res.data;
         
-        // LOGIC: We only want the LATEST ticket for each unique counter.
-        // Since the backend returns them ordered by newest first (DESC), 
-        // the first time we see a counter, it's their current ticket!
         const uniqueCounters = {};
         tickets.forEach(ticket => {
-          if (!uniqueCounters[ticket.counter]) {
-            uniqueCounters[ticket.counter] = ticket;
-          }
+          if (!uniqueCounters[ticket.counter]) uniqueCounters[ticket.counter] = ticket;
         });
 
-        // Convert the object back to an array and sort them by Counter number (1, 2, 3...)
         const sortedCounters = Object.values(uniqueCounters).sort((a, b) => a.counter - b.counter);
-        
         setActiveCounters(sortedCounters);
-      } catch (err) {
-        console.error("Error fetching display tickets:", err);
-      }
+      } catch (err) { console.error("Error fetching display tickets:", err); }
     };
 
     fetchServing();
@@ -36,36 +39,48 @@ function Display() {
   }, []);
 
   return (
-    <div className="display-container">
+    <div className="display-container" style={{ backgroundColor: settings.secondary_color }}>
       
-      {/* HEADER: Logo, Video, Blank */}
-      <div className="display-header">
-        <div className="header-box">
-          <h2 style={{ color: 'gray' }}>[ Logo Area ]</h2>
+      {/* HEADER: Dynamic border and background */}
+      <div className="display-header" style={{ borderBottom: `5px solid ${settings.primary_color}`, backgroundColor: 'rgba(0,0,0,0.3)' }}>
+        <div className="header-box" style={{ backgroundColor: 'transparent' }}>
+          {settings.logo_path ? (
+            <img 
+              src={`http://localhost:5001/uploads/${settings.logo_path}`} 
+              alt="School Logo" 
+              style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} 
+            />
+          ) : (
+            <h2 style={{ color: 'white' }}>[ Logo Area ]</h2>
+          )}
         </div>
         
         <div className="header-video">
-          <video autoPlay muted loop playsInline>
-            {/* Make sure the video name matches your file in the public folder! */}
-            <source src={`${process.env.PUBLIC_URL}/school-video.mp4`} type="video/mp4" />
+          <video key={settings.video_path} autoPlay muted loop playsInline>
+            <source 
+              src={settings.video_path ? `http://localhost:5001/uploads/${settings.video_path}` : `${process.env.PUBLIC_URL}/school-video.mp4`} 
+              type="video/mp4" 
+            />
           </video>
         </div>
         
         <div className="header-box">
-          <h2 style={{ color: 'gray' }}>[ Blank Area ]</h2>
+          <h2 style={{ color: 'white' }}>[ Blank Area ]</h2>
         </div>
       </div>
 
-      {/* MAIN BODY: The Auto-Scaling Grid */}
+      {/* MAIN BODY */}
       <div className="display-body">
         {activeCounters.length === 0 ? (
-          <h1 style={{ textAlign: 'center', color: 'gray', fontSize: '3rem' }}>Waiting for tickets...</h1>
+          <h1 style={{ textAlign: 'center', color: 'white', opacity: 0.5, fontSize: '3rem' }}>Waiting for tickets...</h1>
         ) : (
           <div className="windows-grid">
             {activeCounters.map(ticket => (
-              <div key={ticket.counter} className="window-card">
+              <div key={ticket.counter} className="window-card" style={{ borderTop: `8px solid ${settings.primary_color}` }}>
                 <h2 className="window-title">Counter {ticket.counter}</h2>
-                <h1 className="window-ticket">{ticket.ticketNumber}</h1>
+                <h1 className="window-ticket" style={{ color: settings.primary_color, textShadow: `0 0 15px ${settings.primary_color}80` }}>
+                  {ticket.ticketNumber}
+                </h1>
               </div>
             ))}
           </div>
