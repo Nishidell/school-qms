@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './Admin.css';
 
 function Admin() {
-  const [activeTab, setActiveTab] = useState('departments');
+  const [activeTab, setActiveTab] = useState('operations');
   const navigate = useNavigate();
 
   // State for Services (Departments)
@@ -87,6 +87,14 @@ function Admin() {
         <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
           <FaUserShield /> Admin Panel
         </h2>
+
+        <button 
+          className={`sidebar-btn ${activeTab === 'operations' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('operations')}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+        >
+          ⚙️ Daily Operations
+        </button>
         
         <button 
           className={`sidebar-btn ${activeTab === 'departments' ? 'active' : ''}`} 
@@ -115,6 +123,30 @@ function Admin() {
 
       {/* MAIN CONTENT AREA */}
       <div className="admin-main">
+
+        {/* === OPERATIONS TAB === */}
+        {activeTab === 'operations' && (
+          <div>
+            <h1>Daily Operations</h1>
+            <div className="admin-card" style={{ borderTop: '5px solid #e74c3c' }}>
+              <h3>End of Day Procedures</h3>
+              <p style={{ color: 'gray', marginBottom: '20px' }}>
+                Warning: Resetting the queue will delete all current tickets and reset the starting numbers back to 1. Only do this at the end of the day or before opening.
+              </p>
+              <button 
+                onClick={async () => {
+                  if(window.confirm("CRITICAL WARNING: Are you sure you want to delete ALL tickets and reset the queue?")) {
+                    await axios.delete('http://localhost:5001/api/tickets/reset');
+                    alert("Queue reset successfully!");
+                  }
+                }} 
+                style={{ padding: '15px 30px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '5px', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                ⚠️ RESET QUEUE FOR THE DAY
+              </button>
+            </div>
+          </div>
+        )}
         
         {/* === DEPARTMENTS TAB === */}
         {activeTab === 'departments' && (

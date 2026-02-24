@@ -117,4 +117,23 @@ router.get('/serving', (req, res) => {
   });
 });
 
+// COMPLETE A TICKET (Employee Side)
+router.put('/complete/:id', (req, res) => {
+  const sql = "UPDATE tickets SET status = 'completed' WHERE id = ?";
+  db.query(sql, [req.params.id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Transaction finished!" });
+  });
+});
+
+// RESET THE ENTIRE QUEUE FOR THE DAY (Admin Side)
+router.delete('/reset', (req, res) => {
+  // TRUNCATE deletes all rows AND resets the auto-increment ID back to 1
+  const sql = "TRUNCATE TABLE tickets";
+  db.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Queue has been reset for a new day!" });
+  });
+});
+
 module.exports = router;

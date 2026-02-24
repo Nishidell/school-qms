@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import './EmployeeDashboard.css';
 
 function EmployeeDashboard() {
+  const [currentTicket, setCurrentTicket] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [user, setUser] = useState(null);
-  const [counter, setCounter] = useState(1); // Default to Counter 1
+  const [counter, setCounter] = useState(1); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,28 +43,40 @@ function EmployeeDashboard() {
   };
 
   const handleCallNext = async () => {
-    try {
-      const res = await axios.put('http://localhost:5001/api/tickets/call-next', { 
-        counter: counter,
-        dept: user.service_type 
-      });
-      
-      // We can use a browser text-to-speech to actually announce it! (Optional but cool)
-      const speech = new SpeechSynthesisUtterance(`Ticket ${res.data.ticketNumber}, please proceed to counter ${counter}`);
-      window.speechSynthesis.speak(speech);
+  try {
+    const res = await axios.put('http://localhost:5001/api/tickets/call-next', { 
+      counter: counter,
+      dept: user.service_type 
+    });
 
-      alert(`Success! Called ${res.data.ticketNumber}`);
-      fetchDepartmentTickets(user.service_type); // Refresh list immediately
+    // Add this line to save the ticket we just called!
+    setCurrentTicket({ id: res.data.ticketId, ticketNumber: res.data.ticketNumber });
 
-    } catch (err) {
-      alert(err.response?.data?.message || "Error calling ticket");
-    }
-  };
+    const speech = new SpeechSynthesisUtterance(`Ticket ${res.data.ticketNumber}, please proceed to counter ${counter}`);
+    window.speechSynthesis.speak(speech);
+
+    fetchDepartmentTickets(user.service_type); 
+
+  } catch (err) {
+    alert(err.response?.data?.message || "Error calling ticket");
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
+
+  const handleComplete = async () => {
+  if (!currentTicket) return;
+  try {
+    await axios.put(`http://localhost:5001/api/tickets/complete/${currentTicket.id}`);
+    setCurrentTicket(null); // Clear the current ticket from the screen
+    alert("Transaction finished!");
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <div className="emp-container">
@@ -91,24 +104,20 @@ function EmployeeDashboard() {
       {/* MAIN CONTENT */}
       <div className="emp-main">
         
-        {/* CALL CONTROLS */}
-        <div className="emp-card">
-          <h1>Welcome, {user?.username}</h1>
-          <div style={{ marginBottom: '20px', fontSize: '18px' }}>
-            <label>I am currently at <strong>Counter:</strong> </label>
-            <input 
-              type="number" 
-              min="1" 
-              className="emp-input" 
-              value={counter} 
-              onChange={(e) => setCounter(e.target.value)} 
-            />
-          </div>
-          
-          <button className="call-btn" onClick={handleCallNext} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
-            <FaBullhorn size={24} /> CALL NEXT STUDENT
-          </button>
-        </div>
+        {/* If they are serving someone, show the COMPLETE button. Otherwise, show CALL NEXT */}
+{currentTicket ? (
+  <div style={{ padding: '20px', backgroundColor: '#ecf0f1', borderRadius: '8px', marginTop: '20px' }}>
+    <h3 style={{ margin: 0, color: '#7f8c8d' }}>Currently Serving</h3>
+    <h1 style={{ fontSize: '4rem', color: '#2c3e50', margin: '10px 0' }}>{currentTicket.ticketNumber}</h1>
+    <button onClick={handleComplete} style={{ width: '100%', padding: '15px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '5px', fontSize: '20px', cursor: 'pointer', fontWeight: 'bold' }}>
+      ✅ Finish Transaction
+    </button>
+  </div>
+) : (
+  <button className="call-btn" onClick={handleCallNext} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
+    <FaBullhorn size={24} /> CALL NEXT STUDENT
+  </button>
+)}
 
         {/* WAITING LIST */}
         <div className="emp-card" style={{ textAlign: 'left' }}>
