@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaBuilding, FaUsers, FaSignOutAlt, FaUserShield } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Admin.css';
@@ -83,15 +84,32 @@ function Admin() {
     <div className="admin-container">
       {/* SIDEBAR */}
       <div className="admin-sidebar">
-        <h2>🏫 Admin Panel</h2>
-        <button className={`sidebar-btn ${activeTab === 'departments' ? 'active' : ''}`} onClick={() => setActiveTab('departments')}>
-          🏢 Manage Departments
+        <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+          <FaUserShield /> Admin Panel
+        </h2>
+        
+        <button 
+          className={`sidebar-btn ${activeTab === 'departments' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('departments')}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+        >
+          <FaBuilding /> Manage Departments
         </button>
-        <button className={`sidebar-btn ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
-          👥 Manage Employees
+        
+        <button 
+          className={`sidebar-btn ${activeTab === 'employees' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('employees')}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+        >
+          <FaUsers /> Manage Employees
         </button>
-        <button className="sidebar-btn logout-btn" onClick={handleLogout}>
-          🚪 Logout
+        
+        <button 
+          className="sidebar-btn logout-btn" 
+          onClick={handleLogout}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}
+        >
+          <FaSignOutAlt /> Logout
         </button>
       </div>
 

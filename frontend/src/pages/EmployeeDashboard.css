@@ -1,0 +1,77 @@
+/* EmployeeDashboard.css */
+.emp-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.emp-sidebar {
+    width: 250px;
+    background-color: #2980b9; /* A slightly different blue to distinguish from Admin */
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.emp-main {
+    flex: 1;
+    padding: 40px;
+}
+
+.emp-card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.call-btn {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.call-btn:hover {
+    background-color: #219150;
+}
+
+.queue-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.queue-item {
+    background-color: #ecf0f1;
+    margin-bottom: 10px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #2980b9;
+}
+
+.emp-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 80px;
+    text-align: center;
+    margin-left: 10px;
+}
