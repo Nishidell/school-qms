@@ -39,6 +39,29 @@ router.post('/', (req, res) => {
       });
     });
   });
+  // 3. CALL NEXT TICKET (Update status to 'serving')
+  router.put('/call-next', (req, res) => {
+  const { counter } = req.body;
+
+  // Find the oldest waiting ticket
+  const findSql = "SELECT id FROM tickets WHERE status = 'waiting' ORDER BY createdAt ASC LIMIT 1";
+
+  db.query(findSql, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: "No students waiting!" });
+
+    const ticketId = results[0].id;
+
+    // Update that ticket to 'serving' and assign a counter
+    const updateSql = "UPDATE tickets SET status = 'serving', counter = ? WHERE id = ?";
+    
+    db.query(updateSql, [counter, ticketId], (err, updateResult) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Ticket called!", ticketId, counter });
+    });
+  });
+});
+  
 });
 
 module.exports = router;
