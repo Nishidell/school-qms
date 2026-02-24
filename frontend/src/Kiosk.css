@@ -1,0 +1,100 @@
+/* Kiosk.css */
+.kiosk-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.kiosk-left {
+    width: 35%; 
+    min-width: 350px; 
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #ffffff;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+    z-index: 10; 
+}
+
+.kiosk-right {
+    flex: 1; /* Takes up the remaining width */
+    background-color: #2c3e50; /* A nice professional dark background */
+    display: flex;
+    flex-direction: column; /* Stacks items vertically */
+    justify-content: center; /* Centers everything vertically */
+    align-items: center; /* Centers everything horizontally */
+    position: relative;
+}
+
+.right-top-space {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end; /* Pushes content down towards the video */
+    justify-content: center;
+    padding-bottom: 20px;
+    color: white;
+}
+
+.video-wrapper {
+    width: 85%; /* Adjust this to make the video wider or narrower */
+    max-width: 900px;
+    border-radius: 15px; /* Modern rounded corners */
+    overflow: hidden; /* Ensures the video respects the rounded corners */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Adds a nice drop shadow */
+}
+
+.video-player {
+    width: 100%;
+    height: auto; /* This forces it to keep its natural landscape ratio! */
+    display: block; /* Removes weird tiny margins at the bottom of videos */
+}
+
+.right-bottom-space {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-start; /* Pushes content up towards the video */
+    justify-content: center;
+    padding-top: 20px;
+    color: white;
+}
+.kiosk-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.kiosk-input {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.kiosk-btn {
+    padding: 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.kiosk-btn:hover {
+    background-color: #219150;
+}
+
+.video-player {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

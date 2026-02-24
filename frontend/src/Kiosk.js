@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './Kiosk.css';
 
 function Kiosk() {
   const [services, setServices] = useState([]);
@@ -30,78 +31,60 @@ function Kiosk() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      
-      {/* LEFT HALF: Input Form */}
-      <div style={{ flex: 1, padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center', backgroundColor: '#fff' }}>
-        <h1 style={{ color: '#2c3e50', marginBottom: '30px' }}>Welcome, Student!</h1>
-        <p>Please enter your details to get a queue ticket.</p>
+  <div className="kiosk-container">
+    <div className="kiosk-left">
+      <h1>Welcome, Student!</h1>
+      <form onSubmit={handleGetTicket} className="kiosk-form">
+        <label>Full Name:</label>
+        <input 
+          className="kiosk-input"
+          value={studentName} 
+          onChange={(e) => setStudentName(e.target.value)} 
+          placeholder="Enter your name" 
+          required 
+        />
         
-        <form onSubmit={handleGetTicket} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div>
-            <label>Full Name:</label>
-            <input 
-              type="text" 
-              value={studentName} 
-              onChange={(e) => setStudentName(e.target.value)}
-              placeholder="Enter your name"
-              style={inputStyle}
-              required
-            />
-          </div>
-
-          <div>
-            <label>Select Service:</label>
-            <select 
-              value={selectedService} 
-              onChange={(e) => setSelectedService(e.target.value)}
-              style={inputStyle}
-              required
-            >
-              <option value="">-- Choose a Department --</option>
-              {services.map(s => (
-                <option key={s.id} value={s.service_name}>{s.service_name}</option>
-              ))}
-            </select>
-          </div>
-
-          <button type="submit" style={btnStyle}>PRINT TICKET</button>
-        </form>
-      </div>
-
-      {/* RIGHT HALF: School Video/Branding */}
-      <div style={{ flex: 1, backgroundColor: '#000', position: 'relative' }}>
-        <video 
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          style={{ 
-          width: '100%', 
-          height: '100%', 
-          objectFit: 'cover' 
-          }}
+        <label>Select Service:</label>
+        <select 
+          className="kiosk-input"
+          value={selectedService} 
+          onChange={(e) => setSelectedService(e.target.value)} 
+          required
         >
-          <source src={`${process.env.PUBLIC_URL}/ELECTRON.mp4`} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        
-        {/* Optional: Dark Overlay with School Name */}
-        <div style={{ 
-          position: 'absolute', 
-          bottom: '40px', 
-          left: '40px', 
-          color: 'white', 
-          textShadow: '2px 2px 4px rgba(0,0,0,0.7)' 
-        }}>
-        </div>
-      </div>
-      
+          <option value="">-- Choose a Department --</option>
+          {services.map(s => (
+            <option key={s.id} value={s.service_name}>{s.service_name}</option>
+          ))}
+        </select>
+
+        <button type="submit" className="kiosk-btn">PRINT TICKET</button>
+      </form>
     </div>
+
+    {/* RIGHT HALF: School Video/Branding */}
+      <div className="kiosk-right">
+        
+        {/* Extra Space Above */}
+        <div className="right-top-space">
+            {/* You can put a School Logo or "Announcements" text here later */}
+        </div>
+
+        {/* The Video */}
+        <div className="video-wrapper">
+          <video autoPlay muted loop playsInline className="video-player">
+            <source src={`${process.env.PUBLIC_URL}/ELECTRON.mp4`} type="video/mp4" />
+          </video>
+        </div>
+
+        {/* Extra Space Below */}
+        <div className="right-bottom-space">
+            {/* You can put a running ticker or date/time here later */}
+        </div>
+
+      </div>
+  </div>
   );
 }
 
-const inputStyle = { width: '100%', padding: '15px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', marginTop: '5px' };
-const btnStyle = { padding: '20px', backgroundColor: '#27ae60', color: 'white', border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' };
 
 export default Kiosk;
