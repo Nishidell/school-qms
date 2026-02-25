@@ -39,17 +39,22 @@
 }
 
 .video-wrapper {
-    width: 85%; /* Adjust this to make the video wider or narrower */
-    max-width: 900px;
-    border-radius: 15px; /* Modern rounded corners */
-    overflow: hidden; /* Ensures the video respects the rounded corners */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Adds a nice drop shadow */
+    width: 100%;
+    max-width: 1000px; /* Lets it grow large and cinematic */
+    aspect-ratio: 16 / 9; /* THE MAGIC: Forces a perfect widescreen rectangle! */
+    height: auto; 
+    
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+    background-color: #000; 
+    animation: slideUpFade 0.8s ease-out forwards; 
 }
 
 .video-player {
     width: 100%;
-    height: auto; /* This forces it to keep its natural landscape ratio! */
-    display: block; /* Removes weird tiny margins at the bottom of videos */
+    height: 100%;
+    object-fit: cover; /* Because the wrapper is exactly 16:9, this will no longer zoom/crop! */
 }
 
 .right-bottom-space {
@@ -112,11 +117,17 @@
     background-color: white;
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2); /* A strong shadow to make it float */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    
     width: 100%;
-    max-width: 450px; /* Ensures it doesn't get too wide on huge screens */
+    max-width: 450px; /* Keeps the form from getting absurdly wide */
+    height: auto; /* Lets the height naturally fit the inputs */
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: left;
-
+    box-sizing: border-box;
     animation: slideUpFade 0.8s ease-out forwards;
 }
 

@@ -61,81 +61,85 @@ function Kiosk() {
     }
   };
 
-  return (
+return (
     <>
-    <div className="kiosk-container">
-      
-      {/* LEFT HALF */}
+      {/* 1. ENTIRE SCREEN WRAPPER WITH DOTTED BACKGROUND */}
       <div 
-        className="kiosk-left"
-        // NEW: Apply the textured background to the whole left side container!
+        className="kiosk-container" 
         style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          height: '100vh', 
+          overflow: 'hidden',
           backgroundColor: settings.secondary_color,
-          backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.15) 2px, transparent 2px)',
-          backgroundSize: '30px 30px',
-          backgroundPosition: '0 0',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        {/* NEW: Wrap the content in the floating card */}
-        <div className="kiosk-form-card">
-          
-          {/* Note: Changed text color back to default dark for readability on white card */}
-          <h1 style={{ margin: '0 0 20px 0', color: '#2c3e50' }}>Welcome, Student!</h1>
-          
-          <form onSubmit={handleGetTicket} className="kiosk-form">
-            <label>Full Name:</label>
-            <input className="kiosk-input" value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Enter your name" required />
-            
-            <label>Select Service:</label>
-            <select className="kiosk-input" value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required>
-              <option value="">-- Choose a Department --</option>
-              {services.map(s => <option key={s.id} value={s.service_name}>{s.service_name}</option>)}
-            </select>
-
-            {/* DYNAMIC BUTTON COLOR */}
-            <button type="submit" className="kiosk-btn" style={{ backgroundColor: settings.primary_color }}>
-              PRINT TICKET
-            </button>
-          </form>
-
-        </div> {/* End of floating card */}
-      </div>
-
-      {/* RIGHT HALF */}
-      <div 
-        className="kiosk-right" 
-        style={{ 
-          backgroundColor: settings.secondary_color,
-          // This creates the repeating dot pattern!
           backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.15) 2px, transparent 2px)',
           backgroundSize: '30px 30px',
           backgroundPosition: '0 0'
         }}
       >
-        <div className="right-top-space"></div>
-
-        <div className="video-wrapper">
-          {/* REACT MAGIC TRICK: Changing the 'key' forces the video player to reload when a new video is uploaded! */}
-          <video key={settings.video_path} autoPlay muted loop playsInline className="video-player">
-            <source 
-              src={settings.video_path ? `http://localhost:5001/uploads/${settings.video_path}` : `${process.env.PUBLIC_URL}/school-video.mp4`} 
-              type="video/mp4" 
-            />
-          </video>
+        
+        {/* 2. HEADER (Transparent, just text floating at the top) */}
+        <div style={{ 
+          padding: '40px 20px 0 20px', 
+          textAlign: 'center',
+          zIndex: 10
+        }}>
+          <h1 style={{ 
+            margin: 0, 
+            fontSize: '2.5rem', 
+            color: 'white', 
+            textTransform: 'uppercase', 
+            letterSpacing: '2px', 
+            fontWeight: 'bold',
+            textShadow: '0 4px 10px rgba(0,0,0,0.3)' /* Gives the text a nice pop against the dots */
+          }}>
+            Transaction Queuing Management System
+          </h1>
         </div>
 
-        <div className="right-bottom-space"></div>
+       {/* 3. MAIN CONTENT (Left Card & Right Video) */}
+        <div style={{ flex: 1, display: 'flex', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
+          
+          {/* LEFT HALF (35% Width) */}
+          <div style={{ width: '35%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px 20px 20px 40px' }}>
+            <div className="kiosk-form-card">
+              <h1 style={{ color: '#2c3e50', marginBottom: '20px' }}>Welcome, Student!</h1>
+              
+              <form onSubmit={handleGetTicket} className="kiosk-form">
+                <label>Full Name:</label>
+                <input className="kiosk-input" value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Enter your name" required />
+                
+                <label>Select Service:</label>
+                <select className="kiosk-input" value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required>
+                  <option value="">-- Choose a Department --</option>
+                  {services.map(s => <option key={s.id} value={s.service_name}>{s.service_name}</option>)}
+                </select>
+
+                <button type="submit" className="kiosk-btn" style={{ backgroundColor: settings.primary_color }}>
+                  PRINT TICKET
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* RIGHT HALF (65% Width) */}
+          <div style={{ width: '65%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px 40px 20px 20px' }}>
+            <div className="video-wrapper">
+              <video key={settings.video_path} autoPlay muted loop playsInline className="video-player">
+                <source 
+                  src={settings.video_path ? `http://localhost:5001/uploads/${settings.video_path}` : `${process.env.PUBLIC_URL}/school-video.mp4`} 
+                  type="video/mp4" 
+                />
+              </video>
+            </div>
+          </div>
+
+        </div>
       </div>
-      
-    </div> 
       
       {/* --- HIDDEN PRINT RECEIPT --- */}
       {printedTicket && (
         <div className="receipt-container">
-          {/* Logo on Receipt (if available) */}
           {settings.logo_path && (
             <img 
               src={`http://localhost:5001/uploads/${settings.logo_path}`} 
@@ -143,32 +147,14 @@ function Kiosk() {
               style={{ maxWidth: '100px', marginBottom: '10px', filter: 'grayscale(100%)' }} 
             />
           )}
-          
-          <div className="receipt-header">
-            QUEUE SYSTEM
-          </div>
-          
-          <div className="receipt-details">
-            <strong>Name:</strong> {printedTicket.name}
-          </div>
-          <div className="receipt-details">
-            <strong>Dept:</strong> {printedTicket.service}
-          </div>
-
-          <div className="receipt-ticket-number">
-            {printedTicket.ticketNumber}
-          </div>
-
-          <div className="receipt-details" style={{ textAlign: 'center', fontSize: '0.9rem' }}>
-            {printedTicket.date}
-          </div>
-          
-          <div className="receipt-footer">
-            Please wait for your number to be called.<br/>Thank you!
-          </div>
+          <div className="receipt-header">QUEUE SYSTEM</div>
+          <div className="receipt-details"><strong>Name:</strong> {printedTicket.name}</div>
+          <div className="receipt-details"><strong>Dept:</strong> {printedTicket.service}</div>
+          <div className="receipt-ticket-number">{printedTicket.ticketNumber}</div>
+          <div className="receipt-details" style={{ textAlign: 'center', fontSize: '0.9rem' }}>{printedTicket.date}</div>
+          <div className="receipt-footer">Please wait for your number to be called.<br/>Thank you!</div>
         </div>
       )}
-
     </>
   );
 }
