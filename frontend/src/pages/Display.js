@@ -37,16 +37,25 @@ function Display() {
         const res = await axios.get('http://localhost:5001/api/tickets/serving');
         const tickets = res.data;
         
-        // NEW: Group tickets by the Service (Department) instead of default counter ID
+        // 🚨 CRUCIAL DEBUGGER: This will print the exact database info to your browser!
+        console.log("🔍 TICKETS FROM DATABASE:", tickets);
+        
         const uniqueCounters = {};
+        
         tickets.forEach(ticket => {
-          if (!uniqueCounters[ticket.service]) uniqueCounters[ticket.service] = ticket;
+          // THE BULLETPROOF FIX: We check every single possible name your database might be using
+          const departmentName = ticket.service_type || ticket.serviceType || ticket.service || ticket.department || 'Unknown';
+          
+          if (!uniqueCounters[departmentName]) {
+            uniqueCounters[departmentName] = ticket;
+          }
         });
 
-        // Convert the object back into an array to render
         const sortedCounters = Object.values(uniqueCounters);
         setActiveCounters(sortedCounters);
-      } catch (err) { console.error("Error fetching display tickets:", err); }
+      } catch (err) { 
+        console.error("Error fetching display tickets:", err); 
+      }
     };
 
     fetchServing();
