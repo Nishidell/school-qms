@@ -45,7 +45,9 @@
 .carousel-image {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures it fills the space perfectly without distorting */
+    object-fit: cover; 
+
+    object-position: left center; 
 }
 
 /* --- NAVIGATION ARROWS --- */
