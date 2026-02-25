@@ -12,9 +12,14 @@ router.get('/', (req, res) => {
 
 // ADD a new service (Admin only)
 router.post('/', (req, res) => {
-  const { service_name, prefix } = req.body;
-  const sql = "INSERT INTO services (service_name, prefix) VALUES (?, ?)";
-  db.query(sql, [service_name, prefix], (err, result) => {
+  // NEW: Added counter_name to the request body
+  const { service_name, prefix, counter_name } = req.body;
+  
+  // NEW: Update SQL to insert the custom counter name
+  const sql = "INSERT INTO services (service_name, prefix, counter_name) VALUES (?, ?, ?)";
+  
+  // If they leave it blank, it defaults to 'Window 1'
+  db.query(sql, [service_name, prefix, counter_name || 'Window 1'], (err, result) => {
     if (err) return res.status(500).json(err);
     res.status(201).json({ message: "Service added!" });
   });

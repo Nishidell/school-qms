@@ -14,6 +14,7 @@ function Admin() {
   const [services, setServices] = useState([]);
   const [newName, setNewName] = useState('');
   const [newPrefix, setNewPrefix] = useState('');
+  const [newCounterName, setNewCounterName] = useState('');
   
   const [users, setUsers] = useState([]);
   const [newUsername, setNewUsername] = useState('');
@@ -134,10 +135,14 @@ function Admin() {
 };
 
   // --- DEPARTMENT & USER LOGIC ---
-  const handleAddService = async (e) => {
+ const handleAddService = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5001/api/services', { service_name: newName, prefix: newPrefix });
-    setNewName(''); setNewPrefix(''); fetchServices();
+    await axios.post('http://localhost:5001/api/services', { 
+      service_name: newName, 
+      prefix: newPrefix,
+      counter_name: newCounterName // NEW DATA SENT TO BACKEND
+    });
+    setNewName(''); setNewPrefix(''); setNewCounterName(''); fetchServices();
   };
 
   const handleAddUser = async (e) => {
@@ -213,15 +218,25 @@ function Admin() {
             <h1>Department Management</h1>
             <div className="admin-card">
               <form onSubmit={handleAddService} className="admin-form">
-                <input className="admin-input" placeholder="Service Name" value={newName} onChange={e => setNewName(e.target.value)} required />
-                <input className="admin-input" placeholder="Prefix (e.g. M)" value={newPrefix} onChange={e => setNewPrefix(e.target.value)} required />
+                <input className="admin-input" placeholder="Service Name (e.g. Cashier)" value={newName} onChange={e => setNewName(e.target.value)} required />
+                <input className="admin-input" placeholder="Prefix (e.g. C)" value={newPrefix} onChange={e => setNewPrefix(e.target.value)} required />
+                {/* NEW INPUT FOR COUNTER NAME */}
+                <input className="admin-input" placeholder="Counter Name (e.g. Window 3)" value={newCounterName} onChange={e => setNewCounterName(e.target.value)} required />
                 <button type="submit" className="admin-btn-primary" style={{ backgroundColor: primaryColor }}>Add Department</button>
               </form>
             </div>
             <table className="admin-table">
-              <thead><tr><th>Service Name</th><th>Prefix</th><th>Action</th></tr></thead>
+              <thead><tr><th>Service Name</th><th>Prefix</th><th>Assigned Counter</th><th>Action</th></tr></thead>
               <tbody>
-                {services.map(s => <tr key={s.id}><td>{s.service_name}</td><td><strong>{s.prefix}</strong></td><td><button className="btn-danger" onClick={() => deleteService(s.id)}>Remove</button></td></tr>)}
+                {services.map(s => (
+                  <tr key={s.id}>
+                    <td>{s.service_name}</td>
+                    <td><strong>{s.prefix}</strong></td>
+                    {/* NEW TABLE DATA CELL */}
+                    <td>{s.counter_name}</td>
+                    <td><button className="btn-danger" onClick={() => deleteService(s.id)}>Remove</button></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
