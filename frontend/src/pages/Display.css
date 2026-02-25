@@ -52,10 +52,11 @@
 
 .windows-grid {
     display: grid;
-    /* This is the magic line that scales the boxes automatically! */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    /* Reduced minmax from 300px to 260px so more cards can fit side-by-side if needed */
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+    gap: 15px; /* Reduced the gap between cards to save space */
     width: 100%;
+    max-width: 1800px; 
 }
 
 .window-card {
