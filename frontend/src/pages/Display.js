@@ -98,26 +98,63 @@ function Display() {
         </div>
       </div>
 
-      <div className="display-body">
+      {/* MAIN BODY */}
+      <div className="display-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        
+        {/* 1. NEW "NOW SERVING" HEADER BAR */}
+        <div style={{ 
+          width: '100%', 
+          textAlign: 'center', 
+          padding: '20px 0', 
+          backgroundColor: 'rgba(0,0,0,0.2)', // Slight dark tint to separate header
+          marginBottom: '30px',
+          borderBottom: `2px solid ${settings.primary_color}40` // Subtle separator line
+        }}>
+          <h1 style={{ 
+            margin: 0, 
+            color: settings.primary_color, // Uses your theme color!
+            fontSize: '3.5rem', 
+            fontWeight: '900', 
+            textTransform: 'uppercase', 
+            letterSpacing: '5px',
+            textShadow: `0 0 20px ${settings.primary_color}60` // Nice glowing effect
+          }}>
+            Now Serving
+          </h1>
+        </div>
+
         {activeCounters.length === 0 ? (
-          <h1 style={{ textAlign: 'center', color: 'white', opacity: 0.5, fontSize: '3rem' }}>Waiting for tickets...</h1>
+          <h1 style={{ textAlign: 'center', color: 'white', opacity: 0.5, fontSize: '3rem', marginTop: '50px' }}>Waiting for tickets...</h1>
         ) : (
           <div className="windows-grid">
             {activeCounters.map(ticket => {
               
-              // NEW: Cross-reference the ticket's department to find its custom window name
-              const serviceInfo = services.find(s => s.service_name === ticket.service);
-              const windowName = serviceInfo && serviceInfo.counter_name ? serviceInfo.counter_name : ticket.service;
+              // Find the custom window name
+              const departmentName = ticket.service_type || ticket.serviceType || ticket.service || ticket.department || 'Unknown';
+              const serviceInfo = services.find(s => s.service_name === departmentName);
+              const windowName = serviceInfo && serviceInfo.counter_name ? serviceInfo.counter_name : departmentName;
 
               return (
-                <div key={ticket.ticketNumber} className="window-card" style={{ borderTop: `8px solid ${settings.primary_color}` }}>
+                <div key={ticket.ticketNumber} className="window-card" style={{ borderTop: `8px solid ${settings.primary_color}`, padding: '30px' }}>
                   
-                  {/* Renders your custom window name! */}
-                  <h2 className="window-title" style={{ fontSize: '2rem' }}>{windowName}</h2>
-                  
-                  <h1 className="window-ticket" style={{ color: settings.primary_color, textShadow: `0 0 15px ${settings.primary_color}80` }}>
+                  {/* 2. FLIPPED ORDER: TICKET NUMBER FIRST! */}
+                  <h1 className="window-ticket" style={{ 
+                    color: settings.primary_color, 
+                    textShadow: `0 0 15px ${settings.primary_color}80`,
+                    fontSize: '6rem', // Made it even bigger!
+                    marginBottom: '10px'
+                  }}>
                     {ticket.ticketNumber}
                   </h1>
+
+                  {/* COUNTER LOCATION UNDERNEATH */}
+                  <div style={{ borderTop: '2px solid rgba(255,255,255,0.1)', paddingTop: '15px', width: '100%' }}>
+                     <h3 style={{ color: 'rgba(255,255,255,0.7)', margin: '0', fontSize: '1.2rem', textTransform: 'uppercase' }}>Proceed To:</h3>
+                     <h2 className="window-title" style={{ fontSize: '2.5rem', color: 'white', marginTop: '5px' }}>
+                       {windowName}
+                     </h2>
+                  </div>
+
                 </div>
               );
             })}
