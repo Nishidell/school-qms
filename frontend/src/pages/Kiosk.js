@@ -66,23 +66,42 @@ function Kiosk() {
     <div className="kiosk-container">
       
       {/* LEFT HALF */}
-      <div className="kiosk-left">
-        <h1 style={{ color: settings.secondary_color }}>Welcome, Student!</h1>
-        <form onSubmit={handleGetTicket} className="kiosk-form">
-          <label>Full Name:</label>
-          <input className="kiosk-input" value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Enter your name" required />
+      <div 
+        className="kiosk-left"
+        // NEW: Apply the textured background to the whole left side container!
+        style={{ 
+          backgroundColor: settings.secondary_color,
+          backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.15) 2px, transparent 2px)',
+          backgroundSize: '30px 30px',
+          backgroundPosition: '0 0',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        {/* NEW: Wrap the content in the floating card */}
+        <div className="kiosk-form-card">
           
-          <label>Select Service:</label>
-          <select className="kiosk-input" value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required>
-            <option value="">-- Choose a Department --</option>
-            {services.map(s => <option key={s.id} value={s.service_name}>{s.service_name}</option>)}
-          </select>
+          {/* Note: Changed text color back to default dark for readability on white card */}
+          <h1 style={{ margin: '0 0 20px 0', color: '#2c3e50' }}>Welcome, Student!</h1>
+          
+          <form onSubmit={handleGetTicket} className="kiosk-form">
+            <label>Full Name:</label>
+            <input className="kiosk-input" value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Enter your name" required />
+            
+            <label>Select Service:</label>
+            <select className="kiosk-input" value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required>
+              <option value="">-- Choose a Department --</option>
+              {services.map(s => <option key={s.id} value={s.service_name}>{s.service_name}</option>)}
+            </select>
 
-          {/* DYNAMIC BUTTON COLOR */}
-          <button type="submit" className="kiosk-btn" style={{ backgroundColor: settings.primary_color }}>
-            PRINT TICKET
-          </button>
-        </form>
+            {/* DYNAMIC BUTTON COLOR */}
+            <button type="submit" className="kiosk-btn" style={{ backgroundColor: settings.primary_color }}>
+              PRINT TICKET
+            </button>
+          </form>
+
+        </div> {/* End of floating card */}
       </div>
 
       {/* RIGHT HALF */}

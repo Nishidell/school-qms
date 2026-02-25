@@ -99,6 +99,17 @@
     object-fit: cover;
 }
 
+/* The white floating card containing the form */
+.kiosk-form-card {
+    background-color: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); /* A strong shadow to make it float */
+    width: 100%;
+    max-width: 450px; /* Ensures it doesn't get too wide on huge screens */
+    text-align: left;
+}
+
 /* --- PRINT RECEIPT STYLES --- */
 
 /* Hide the receipt on the normal computer screen */
