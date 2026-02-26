@@ -27,6 +27,7 @@ function Admin() {
   const [newPassword, setNewPassword] = useState('');
   const [newRole, setNewRole] = useState('employee');
   const [newServiceType, setNewServiceType] = useState('');
+  const [editingUserId, setEditingUserId] = useState(null);
 
   // Superadmin Settings States
   const [primaryColor, setPrimaryColor] = useState('#B31B1B');
@@ -167,13 +168,43 @@ const startEdit = (service) => {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
+    const payload = { 
+      username: newUsername, 
+      password: newPassword, 
+      role: newRole, 
+      service_type: newServiceType || 'all' // Matches your database column
+    };
+
     try {
-      await axios.post('http://localhost:5001/api/auth/register', { 
-        username: newUsername, password: newPassword, role: newRole, service_type: newServiceType || 'all'
-      });
-      alert("Account created successfully!");
-      setNewUsername(''); setNewPassword(''); fetchUsers();
-    } catch (err) { alert("Error creating user: " + (err.response?.data?.error || "Unknown error")); }
+      if (editingUserId) {
+        // UPDATE existing user
+        await axios.put(`http://localhost:5001/api/users/${editingUserId}`, payload);
+        alert("Employee updated successfully!");
+        setEditingUserId(null); // Exit edit mode
+      } else {
+        // CREATE new user
+        await axios.post('http://localhost:5001/api/auth/register', payload);
+        alert("Account created successfully!");
+      }
+
+      // Clear the form fields
+      setNewUsername(''); 
+      setNewPassword(''); 
+      setNewRole('employee');
+      setNewServiceType('');
+      fetchUsers();
+    } catch (err) { 
+      alert("Error saving user: " + (err.response?.data?.error || "Unknown error")); 
+    }
+  };
+
+  // NEW: Function to populate the form when "Update" is clicked
+  const startEditUser = (user) => {
+    setEditingUserId(user.id);
+    setNewUsername(user.username);
+    setNewPassword(''); // Leave blank so we don't accidentally overwrite it
+    setNewRole(user.role);
+    setNewServiceType(user.service_type === 'all' ? '' : user.service_type);
   };
 
   const handleAddNewWindow = () => {
@@ -350,7 +381,9 @@ const startEdit = (service) => {
             <div className="admin-card">
               <form onSubmit={handleAddUser} className="admin-form">
                 <input className="admin-input" placeholder="Username" value={newUsername} onChange={e => setNewUsername(e.target.value)} required />
-                <input className="admin-input" type="password" placeholder="Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
+                
+                {/* Password is only required if making a NEW account */}
+                <input className="admin-input" type="password" placeholder={editingUserId ? "New Password" : "Password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} required={!editingUserId} />
                 
                 <select className="admin-select" value={newRole} onChange={e => setNewRole(e.target.value)}>
                   <option value="employee">Employee</option>
@@ -360,17 +393,57 @@ const startEdit = (service) => {
 
                 {newRole === 'employee' && (
                   <select className="admin-select" value={newServiceType} onChange={e => setNewServiceType(e.target.value)} required>
-                    <option value="">-- Assign Department --</option>
+                    <option value="">Department</option>
                     {services.map(s => <option key={s.id} value={s.service_name}>{s.service_name}</option>)}
                   </select>
                 )}
-                <button type="submit" className="admin-btn-primary" style={{ backgroundColor: primaryColor }}>Create Account</button>
+
+                <button type="submit" className="admin-btn-primary" style={{ backgroundColor: editingUserId ? '#27ae60' : primaryColor }}>
+                  {editingUserId ? 'Update Employee' : 'Create Account'}
+                </button>
+
+                {/* CANCEL BUTTON */}
+                {editingUserId && (
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setEditingUserId(null); 
+                      setNewUsername(''); 
+                      setNewPassword(''); 
+                      setNewRole('employee'); 
+                      setNewServiceType('');
+                    }} 
+                    className="admin-btn-cancel"
+                  >
+                    Cancel
+                  </button>
+                )}
               </form>
             </div>
+            
             <table className="admin-table">
               <thead><tr><th>Username</th><th>Role</th><th>Department</th><th>Action</th></tr></thead>
               <tbody>
-                {users.map(u => <tr key={u.id}><td>{u.username}</td><td>{u.role}</td><td>{u.service_type}</td><td><button className="btn-danger" onClick={() => deleteUser(u.id)}>Delete</button></td></tr>)}
+                {users.map(u => (
+                  <tr key={u.id}>
+                    <td>{u.username}</td>
+                    <td>{u.role}</td>
+                    <td>{u.service_type}</td>
+                    <td style={{ display: 'flex', gap: '10px' }}>
+                      
+                      {/* NEW UPDATE BUTTON */}
+                      <button 
+                        className="admin-btn-edit" 
+                        onClick={() => startEditUser(u)} 
+                        style={{ backgroundColor: '#f39c12', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                      >
+                        Update
+                      </button>
+
+                      <button className="btn-danger" onClick={() => deleteUser(u.id)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
