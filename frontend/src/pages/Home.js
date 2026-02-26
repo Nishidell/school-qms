@@ -1,18 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaDesktop, FaTv, FaUserShield } from 'react-icons/fa';
-import './Home.css'; // <-- Importing our new external CSS file
+import './Home.css'; 
 
 function Home() {
   const navigate = useNavigate();
 
   return (
     <div className="home-container">
+      {/* The new animated background layer */}
+      <div className="home-bg"></div> 
       <div className="home-overlay"></div> 
       
       <div className="home-card">
         <h1 className="home-title">Queueing Management System</h1>
-        <br></br>
+        <p className="home-subtitle">Electron College of Technical Education</p>
 
         <button 
           className="home-btn btn-kiosk" 
