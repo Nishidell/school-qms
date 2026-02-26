@@ -33,4 +33,14 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+// UPDATE a service
+router.put('/:id', (req, res) => {
+  const { service_name, prefix, counter_name } = req.body;
+  const sql = "UPDATE services SET service_name = ?, prefix = ?, counter_name = ? WHERE id = ?";
+  db.query(sql, [service_name, prefix, counter_name, req.params.id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json({ message: "Service updated successfully!" });
+  });
+});
+
 module.exports = router;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
+import { FaTrash } from 'react-icons/fa';
 import { FaBuilding, FaUsers, FaSignOutAlt, FaUserShield, FaCog, FaPalette, FaVideo } from 'react-icons/fa';
 import './Admin.css';
 
@@ -9,6 +10,11 @@ function Admin() {
   const [activeTab, setActiveTab] = useState('operations');
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
+
+  const [editingId, setEditingId] = useState(null); // Tracks which service is being edited
+  const [counterOptions, setCounterOptions] = useState([
+  "Window 1", "Window 2", "Window 3", "Window 4", "Window 5", "Window 6"
+]);
 
   // States
   const [services, setServices] = useState([]);
@@ -135,15 +141,29 @@ function Admin() {
 };
 
   // --- DEPARTMENT & USER LOGIC ---
- const handleAddService = async (e) => {
-    e.preventDefault();
-    await axios.post('http://localhost:5001/api/services', { 
-      service_name: newName, 
-      prefix: newPrefix,
-      counter_name: newCounterName // NEW DATA SENT TO BACKEND
-    });
-    setNewName(''); setNewPrefix(''); setNewCounterName(''); fetchServices();
-  };
+ const handleSaveService = async (e) => {
+  e.preventDefault();
+  const payload = { service_name: newName, prefix: newPrefix, counter_name: newCounterName };
+
+  if (editingId) {
+    // UPDATE existing
+    await axios.put(`http://localhost:5001/api/services/${editingId}`, payload);
+    setEditingId(null);
+  } else {
+    // ADD new
+    await axios.post('http://localhost:5001/api/services', payload);
+  }
+
+  setNewName(''); setNewPrefix(''); setNewCounterName('');
+  fetchServices();
+};
+
+const startEdit = (service) => {
+  setEditingId(service.id);
+  setNewName(service.service_name);
+  setNewPrefix(service.prefix);
+  setNewCounterName(service.counter_name);
+};
 
   const handleAddUser = async (e) => {
     e.preventDefault();
@@ -154,6 +174,32 @@ function Admin() {
       alert("Account created successfully!");
       setNewUsername(''); setNewPassword(''); fetchUsers();
     } catch (err) { alert("Error creating user: " + (err.response?.data?.error || "Unknown error")); }
+  };
+
+  const handleAddNewWindow = () => {
+  const newWindowName = prompt("Enter the name for the new window (e.g., Window 7):");
+  
+  if (newWindowName && newWindowName.trim() !== "") {
+    // Check if it already exists to prevent duplicates
+    if (counterOptions.includes(newWindowName)) {
+      alert("This window name already exists!");
+    } else {
+      setCounterOptions([...counterOptions, newWindowName]);
+      setNewCounterName(newWindowName); // Automatically select the new window
+    }
+  }
+};
+
+  const handleRemoveWindow = () => {
+    if (!newCounterName) return; // Do nothing if nothing is selected
+    
+    const confirmDelete = window.confirm(`Are you sure you want to remove "${newCounterName}" from the dropdown options?`);
+    
+    if (confirmDelete) {
+      // Filter out the window we want to delete
+      setCounterOptions(counterOptions.filter(opt => opt !== newCounterName));
+      setNewCounterName(''); // Reset the dropdown to blank
+    }
   };
 
   const deleteService = async (id) => { if(window.confirm("Delete?")) { await axios.delete(`http://localhost:5001/api/services/${id}`); fetchServices(); } };
@@ -213,34 +259,89 @@ function Admin() {
         )}
 
         {/* === DEPARTMENTS TAB === */}
-        {activeTab === 'departments' && (
-          <div>
-            <h1>Department Management</h1>
-            <div className="admin-card">
-              <form onSubmit={handleAddService} className="admin-form">
-                <input className="admin-input" placeholder="Service Name (e.g. Cashier)" value={newName} onChange={e => setNewName(e.target.value)} required />
-                <input className="admin-input" placeholder="Prefix (e.g. C)" value={newPrefix} onChange={e => setNewPrefix(e.target.value)} required />
-                {/* NEW INPUT FOR COUNTER NAME */}
-                <input className="admin-input" placeholder="Counter Name (e.g. Window 3)" value={newCounterName} onChange={e => setNewCounterName(e.target.value)} required />
-                <button type="submit" className="admin-btn-primary" style={{ backgroundColor: primaryColor }}>Add Department</button>
-              </form>
-            </div>
-            <table className="admin-table">
-              <thead><tr><th>Service Name</th><th>Prefix</th><th>Assigned Counter</th><th>Action</th></tr></thead>
-              <tbody>
-                {services.map(s => (
-                  <tr key={s.id}>
-                    <td>{s.service_name}</td>
-                    <td><strong>{s.prefix}</strong></td>
-                    {/* NEW TABLE DATA CELL */}
-                    <td>{s.counter_name}</td>
-                    <td><button className="btn-danger" onClick={() => deleteService(s.id)}>Remove</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+       {activeTab === 'departments' && (
+  <div>
+    <h1>Department Management</h1>
+    <div className="admin-card">
+      <form onSubmit={handleSaveService} className="admin-form">
+        <input className="admin-input" placeholder="Service Name" value={newName} onChange={e => setNewName(e.target.value)} required />
+        <input className="admin-input" placeholder="Prefix" value={newPrefix} onChange={e => setNewPrefix(e.target.value)} required />
+        
+        {/* DROPDOWN FOR COUNTER NAME */}
+        {/* DROPDOWN WRAPPER WITH DELETE BUTTON */}
+<div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+  
+  <select 
+    className="admin-input" 
+    value={newCounterName} 
+    onChange={(e) => {
+      if (e.target.value === "ADD_NEW") {
+        handleAddNewWindow();
+      } else {
+        setNewCounterName(e.target.value);
+      }
+    }} 
+    required
+    style={{ margin: 0 }} /* Keeps it aligned with the button */
+  >
+    <option value="">-- Select Counter --</option>
+    {counterOptions.map(opt => (
+      <option key={opt} value={opt}>{opt}</option>
+    ))}
+    <option value="ADD_NEW" style={{ fontWeight: 'bold', color: primaryColor || '#3498db' }}>
+      + Add Another Window
+    </option>
+  </select>
+
+  {/* ONLY SHOW TRASH CAN IF A VALID WINDOW IS SELECTED */}
+  {newCounterName && newCounterName !== "ADD_NEW" && (
+    <button 
+      type="button" 
+      onClick={handleRemoveWindow}
+      style={{ 
+        backgroundColor: '#e74c3c', 
+        color: 'white', 
+        border: 'none', 
+        borderRadius: '4px', 
+        padding: '10px 12px', 
+        cursor: 'pointer',
+        fontSize: '1rem'
+      }}
+      title="Remove this window from the list"
+    >
+      <FaTrash />
+    </button>
+  )}
+  
+</div>
+
+        <button type="submit" className="admin-btn-primary" style={{ backgroundColor: editingId ? '#27ae60' : primaryColor }}>
+          {editingId ? 'Update Department' : 'Add Department'}
+        </button>
+        {editingId && <button onClick={() => {setEditingId(null); setNewName(''); setNewPrefix(''); setNewCounterName('');}} className="admin-btn-cancel">Cancel</button>}
+      </form>
+    </div>
+
+    <table className="admin-table">
+      <thead>
+        <tr><th>Service Name</th><th>Prefix</th><th>Assigned Counter</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {services.map(s => (
+          <tr key={s.id}>
+            <td>{s.service_name}</td>
+            <td><strong>{s.prefix}</strong></td>
+            <td>{s.counter_name}</td>
+            <td style={{ display: 'flex', gap: '10px' }}>
+              <button className="admin-btn-edit" onClick={() => startEdit(s)} style={{ backgroundColor: '#f39c12', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>Update</button>
+              <button className="btn-danger" onClick={() => deleteService(s.id)}>Remove</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
 
         {/* === EMPLOYEES TAB === */}
         {activeTab === 'employees' && (

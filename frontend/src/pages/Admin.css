@@ -115,3 +115,22 @@
     border-radius: 4px;
     cursor: pointer;
 }
+
+/* --- CANCEL BUTTON DESIGN --- */
+.admin-btn-cancel {
+    background-color: #ecf0f1; /* Light gray background */
+    color: #7f8c8d; /* Dark gray text */
+    border: 1px solid #bdc3c7;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px; /* Space between Update and Cancel */
+}
+
+.admin-btn-cancel:hover {
+    background-color: #95a5a6; /* Darker gray on hover */
+    color: white;
+    border-color: #95a5a6;
+}
