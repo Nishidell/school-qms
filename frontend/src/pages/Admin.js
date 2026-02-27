@@ -59,17 +59,17 @@ function Admin() {
 
   // --- API CALLS ---
   const fetchServices = async () => {
-    const res = await axios.get('http://localhost:5001/api/services');
+    const res = await axios.get('/api/services');
     setServices(res.data);
   };
 
   const fetchUsers = async () => {
-    const res = await axios.get('http://localhost:5001/api/users');
+    const res = await axios.get('/api/users');
     setUsers(res.data);
   };
 
   const fetchSettings = async () => {
-    const res = await axios.get('http://localhost:5001/api/settings');
+    const res = await axios.get('/api/settings');
     if(res.data) {
       setPrimaryColor(res.data.primary_color);
       setSecondaryColor(res.data.secondary_color);
@@ -77,7 +77,7 @@ function Admin() {
   };
 
   const fetchCarousel = async () => {
-  const res = await axios.get('http://localhost:5001/api/settings/carousel');
+  const res = await axios.get('/api/settings/carousel');
   setCarouselImages(res.data);
 };
 
@@ -87,7 +87,7 @@ function Admin() {
     const formData = new FormData();
     formData.append('carousel_image', newCarouselFile);
     try {
-      await axios.post('http://localhost:5001/api/settings/upload-carousel', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+      await axios.post('/api/settings/upload-carousel', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
       setNewCarouselFile(null);
       fetchCarousel();
       alert("Image added to login carousel!");
@@ -96,7 +96,7 @@ function Admin() {
 
   const deleteCarouselImage = async (id) => {
     if(window.confirm("Remove this image from the slideshow?")) {
-      await axios.delete(`http://localhost:5001/api/settings/carousel/${id}`);
+      await axios.delete(`/api/settings/carousel/${id}`);
       fetchCarousel();
     }
   };
@@ -104,7 +104,7 @@ function Admin() {
   const handleUpdateColors = async (e) => {
     e.preventDefault();
     try {
-      await axios.put('http://localhost:5001/api/settings/colors', { primary_color: primaryColor, secondary_color: secondaryColor });
+      await axios.put('/api/settings/colors', { primary_color: primaryColor, secondary_color: secondaryColor });
       alert("Colors updated successfully! (Refresh Kiosk/Display to see changes)");
     } catch (err) { console.error(err); }
   };
@@ -117,7 +117,7 @@ function Admin() {
     formData.append('video', videoFile);
 
     try {
-      await axios.post('http://localhost:5001/api/settings/upload-video', formData, {
+      await axios.post('/api/settings/upload-video', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert("Video uploaded successfully! (Refresh Kiosk/Display to see changes)");
@@ -133,7 +133,7 @@ function Admin() {
   formData.append('logo', logoFile);
 
   try {
-    await axios.post('http://localhost:5001/api/settings/upload-logo', formData, {
+    await axios.post('/api/settings/upload-logo', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     alert("Logo uploaded successfully! (Refresh Display to see changes)");
@@ -148,11 +148,11 @@ function Admin() {
 
   if (editingId) {
     // UPDATE existing
-    await axios.put(`http://localhost:5001/api/services/${editingId}`, payload);
+    await axios.put(`/api/services/${editingId}`, payload);
     setEditingId(null);
   } else {
     // ADD new
-    await axios.post('http://localhost:5001/api/services', payload);
+    await axios.post('/api/services', payload);
   }
 
   setNewName(''); setNewPrefix(''); setNewCounterName('');
@@ -178,12 +178,12 @@ const startEdit = (service) => {
     try {
       if (editingUserId) {
         // UPDATE existing user
-        await axios.put(`http://localhost:5001/api/users/${editingUserId}`, payload);
+        await axios.put(`/api/users/${editingUserId}`, payload);
         alert("Employee updated successfully!");
         setEditingUserId(null); // Exit edit mode
       } else {
         // CREATE new user
-        await axios.post('http://localhost:5001/api/auth/register', payload);
+        await axios.post('/api/auth/register', payload);
         alert("Account created successfully!");
       }
 
@@ -233,8 +233,8 @@ const startEdit = (service) => {
     }
   };
 
-  const deleteService = async (id) => { if(window.confirm("Delete?")) { await axios.delete(`http://localhost:5001/api/services/${id}`); fetchServices(); } };
-  const deleteUser = async (id) => { if(window.confirm("Delete?")) { await axios.delete(`http://localhost:5001/api/users/${id}`); fetchUsers(); } };
+  const deleteService = async (id) => { if(window.confirm("Delete?")) { await axios.delete(`/api/services/${id}`); fetchServices(); } };
+  const deleteUser = async (id) => { if(window.confirm("Delete?")) { await axios.delete(`/api/users/${id}`); fetchUsers(); } };
 
   const handleLogout = () => { localStorage.removeItem('token'); navigate('/login'); };
 
@@ -278,7 +278,7 @@ const startEdit = (service) => {
                <h3>End of Day Procedures</h3>
                <button onClick={async () => {
                    if(window.confirm("CRITICAL WARNING: Are you sure you want to reset the queue?")) {
-                     await axios.delete('http://localhost:5001/api/tickets/reset');
+                     await axios.delete('/api/tickets/reset');
                      alert("Queue reset successfully!");
                    }
                  }} 
@@ -491,7 +491,7 @@ const startEdit = (service) => {
            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
              {carouselImages.map(img => (
                <div key={img.id} style={{ position: 'relative', minWidth: '150px' }}>
-                 <img src={`http://localhost:5001/uploads/${img.image_path}`} alt="Carousel" style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                 <img src={`/uploads/${img.image_path}`} alt="Carousel" style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
                  <button onClick={() => deleteCarouselImage(img.id)} style={{ position: 'absolute', top: '5px', right: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer' }}>X</button>
                </div>
              ))}
