@@ -23,7 +23,6 @@ app.use('/api/users', require('./routes/userRoutes'));
 
 app.use('/api/services', require('./routes/serviceRoutes'));
 
-// This line works perfectly now because 'path' is at the top!
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/settings', require('./routes/settingRoutes'));
