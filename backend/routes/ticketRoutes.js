@@ -22,30 +22,26 @@ router.get('/', (req, res) => {
   });
 });
 
-// 2. CREATE A NEW TICKET (DYNAMIC: Reads prefix directly from the Admin settings!)
+// 2. CREATE A NEW TICKET (DYNAMIC: 4-digit number like 0001)
 router.post('/', (req, res) => {
   const { serviceType } = req.body;
 
-  // Get the prefix from the services table
-  const serviceSql = "SELECT prefix FROM services WHERE service_name = ?";
+  // Count ALL existing tickets in the database to get the next number
+  const countSql = "SELECT COUNT(*) AS count FROM tickets";
   
-  db.query(serviceSql, [serviceType], (err, serviceResult) => {
-    if (err || serviceResult.length === 0) return res.status(400).json({ error: "Invalid Service" });
+  db.query(countSql, (err, countResults) => {
+    if (err) return res.status(500).json({ error: err.message });
 
-    const prefix = serviceResult[0].prefix;
+    // Math magic: Add 1, convert to string, and pad with leading zeros!
+    // Example: 1 -> "0001", 12 -> "0012", 999 -> "0999"
+    const nextNumber = countResults[0].count + 1;
+    const newNumber = String(nextNumber).padStart(4, '0');
 
-    // Count existing tickets for THIS prefix to get the next number
-    const countSql = "SELECT COUNT(*) AS count FROM tickets WHERE ticketNumber LIKE ?";
-    
-    db.query(countSql, [`${prefix}-%`], (err, countResults) => {
-      const newNumber = `${prefix}-${countResults[0].count + 1}`;
-
-      // Insert the new ticket
-      const insertSql = "INSERT INTO tickets (ticketNumber, serviceType) VALUES (?, ?)";
-      db.query(insertSql, [newNumber, serviceType], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ ticketNumber: newNumber });
-      });
+    // Insert the new 4-digit ticket into the database
+    const insertSql = "INSERT INTO tickets (ticketNumber, serviceType) VALUES (?, ?)";
+    db.query(insertSql, [newNumber, serviceType], (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ ticketNumber: newNumber });
     });
   });
 });

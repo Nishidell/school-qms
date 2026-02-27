@@ -11,7 +11,7 @@ function Admin() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
 
-  const [editingId, setEditingId] = useState(null); // Tracks which service is being edited
+  const [editingId, setEditingId] = useState(null);
   const [counterOptions, setCounterOptions] = useState([
   "Window 1", "Window 2", "Window 3", "Window 4", "Window 5", "Window 6"
 ]);
@@ -19,7 +19,6 @@ function Admin() {
   // States
   const [services, setServices] = useState([]);
   const [newName, setNewName] = useState('');
-  const [newPrefix, setNewPrefix] = useState('');
   const [newCounterName, setNewCounterName] = useState('');
   
   const [users, setUsers] = useState([]);
@@ -44,7 +43,6 @@ function Admin() {
     
     try {
       const decoded = jwtDecode(token);
-      // Kick them out if they are just an employee
       if (decoded.role === 'employee') return navigate('/login'); 
       setCurrentUser(decoded);
     } catch (err) {
@@ -144,7 +142,7 @@ function Admin() {
   // --- DEPARTMENT & USER LOGIC ---
  const handleSaveService = async (e) => {
   e.preventDefault();
-  const payload = { service_name: newName, prefix: newPrefix, counter_name: newCounterName };
+  const payload = { service_name: newName, counter_name: newCounterName };
 
   if (editingId) {
     // UPDATE existing
@@ -155,14 +153,13 @@ function Admin() {
     await axios.post('/api/services', payload);
   }
 
-  setNewName(''); setNewPrefix(''); setNewCounterName('');
+  setNewName(''); setNewCounterName('');
   fetchServices();
 };
 
 const startEdit = (service) => {
   setEditingId(service.id);
   setNewName(service.service_name);
-  setNewPrefix(service.prefix);
   setNewCounterName(service.counter_name);
 };
 
@@ -172,22 +169,19 @@ const startEdit = (service) => {
       username: newUsername, 
       password: newPassword, 
       role: newRole, 
-      service_type: newServiceType || 'all' // Matches your database column
+      service_type: newServiceType || 'all'
     };
 
     try {
       if (editingUserId) {
-        // UPDATE existing user
         await axios.put(`/api/users/${editingUserId}`, payload);
         alert("Employee updated successfully!");
-        setEditingUserId(null); // Exit edit mode
+        setEditingUserId(null); 
       } else {
-        // CREATE new user
         await axios.post('/api/auth/register', payload);
         alert("Account created successfully!");
       }
 
-      // Clear the form fields
       setNewUsername(''); 
       setNewPassword(''); 
       setNewRole('employee');
@@ -198,11 +192,10 @@ const startEdit = (service) => {
     }
   };
 
-  // NEW: Function to populate the form when "Update" is clicked
   const startEditUser = (user) => {
     setEditingUserId(user.id);
     setNewUsername(user.username);
-    setNewPassword(''); // Leave blank so we don't accidentally overwrite it
+    setNewPassword(''); 
     setNewRole(user.role);
     setNewServiceType(user.service_type === 'all' ? '' : user.service_type);
   };
@@ -211,25 +204,23 @@ const startEdit = (service) => {
   const newWindowName = prompt("Enter the name for the new window (e.g., Window 7):");
   
   if (newWindowName && newWindowName.trim() !== "") {
-    // Check if it already exists to prevent duplicates
     if (counterOptions.includes(newWindowName)) {
       alert("This window name already exists!");
     } else {
       setCounterOptions([...counterOptions, newWindowName]);
-      setNewCounterName(newWindowName); // Automatically select the new window
+      setNewCounterName(newWindowName);
     }
   }
 };
 
   const handleRemoveWindow = () => {
-    if (!newCounterName) return; // Do nothing if nothing is selected
+    if (!newCounterName) return; 
     
     const confirmDelete = window.confirm(`Are you sure you want to remove "${newCounterName}" from the dropdown options?`);
     
     if (confirmDelete) {
-      // Filter out the window we want to delete
       setCounterOptions(counterOptions.filter(opt => opt !== newCounterName));
-      setNewCounterName(''); // Reset the dropdown to blank
+      setNewCounterName(''); 
     }
   };
 
@@ -296,10 +287,8 @@ const startEdit = (service) => {
     <div className="admin-card">
       <form onSubmit={handleSaveService} className="admin-form">
         <input className="admin-input" placeholder="Service Name" value={newName} onChange={e => setNewName(e.target.value)} required />
-        <input className="admin-input" placeholder="Prefix" value={newPrefix} onChange={e => setNewPrefix(e.target.value)} required />
         
         {/* DROPDOWN FOR COUNTER NAME */}
-        {/* DROPDOWN WRAPPER WITH DELETE BUTTON */}
 <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
   
   <select 
@@ -313,7 +302,7 @@ const startEdit = (service) => {
       }
     }} 
     required
-    style={{ margin: 0 }} /* Keeps it aligned with the button */
+    style={{ margin: 0 }} 
   >
     <option value="">-- Select Counter --</option>
     {counterOptions.map(opt => (
@@ -349,19 +338,18 @@ const startEdit = (service) => {
         <button type="submit" className="admin-btn-primary" style={{ backgroundColor: editingId ? '#27ae60' : primaryColor }}>
           {editingId ? 'Update Department' : 'Add Department'}
         </button>
-        {editingId && <button onClick={() => {setEditingId(null); setNewName(''); setNewPrefix(''); setNewCounterName('');}} className="admin-btn-cancel">Cancel</button>}
+        {editingId && <button onClick={() => {setEditingId(null); setNewName(''); setNewCounterName('');}} className="admin-btn-cancel">Cancel</button>}
       </form>
     </div>
 
     <table className="admin-table">
       <thead>
-        <tr><th>Service Name</th><th>Prefix</th><th>Assigned Counter</th><th>Action</th></tr>
+        <tr><th>Service Name</th><th>Assigned Counter</th><th>Action</th></tr>
       </thead>
       <tbody>
         {services.map(s => (
           <tr key={s.id}>
             <td>{s.service_name}</td>
-            <td><strong>{s.prefix}</strong></td>
             <td>{s.counter_name}</td>
             <td style={{ display: 'flex', gap: '10px' }}>
               <button className="admin-btn-edit" onClick={() => startEdit(s)} style={{ backgroundColor: '#f39c12', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>Update</button>
@@ -382,12 +370,10 @@ const startEdit = (service) => {
               <form onSubmit={handleAddUser} className="admin-form">
                 <input className="admin-input" placeholder="Username" value={newUsername} onChange={e => setNewUsername(e.target.value)} required />
                 
-                {/* Password is only required if making a NEW account */}
                 <input className="admin-input" type="password" placeholder={editingUserId ? "New Password" : "Password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} required={!editingUserId} />
                 
                 <select className="admin-select" value={newRole} onChange={e => setNewRole(e.target.value)}>
                   <option value="employee">Employee</option>
-                  {/* ONLY SUPERADMIN CAN CREATE ADMINS */}
                   {currentUser?.role === 'superadmin' && <option value="admin">Admin</option>}
                 </select>
 
@@ -402,7 +388,6 @@ const startEdit = (service) => {
                   {editingUserId ? 'Update Employee' : 'Create Account'}
                 </button>
 
-                {/* CANCEL BUTTON */}
                 {editingUserId && (
                   <button 
                     type="button" 
@@ -431,7 +416,6 @@ const startEdit = (service) => {
                     <td>{u.service_type}</td>
                     <td style={{ display: 'flex', gap: '10px' }}>
                       
-                      {/* NEW UPDATE BUTTON */}
                       <button 
                         className="admin-btn-edit" 
                         onClick={() => startEditUser(u)} 
@@ -487,7 +471,6 @@ const startEdit = (service) => {
              <button type="submit" className="admin-btn-primary" style={{ backgroundColor: primaryColor }}>Add to Slideshow</button>
            </form>
 
-           {/* Show the uploaded images */}
            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
              {carouselImages.map(img => (
                <div key={img.id} style={{ position: 'relative', minWidth: '150px' }}>
