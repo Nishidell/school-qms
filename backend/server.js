@@ -22,8 +22,6 @@ app.use('/api/users', require('./routes/userRoutes'));
 
 app.use('/api/services', require('./routes/serviceRoutes'));
 
-const path = require('path');
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/settings', require('./routes/settingRoutes'));
