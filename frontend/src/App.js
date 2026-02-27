@@ -8,7 +8,11 @@ import Admin from './pages/Admin';
 import Employee from './pages/EmployeeDashboard';
 import axios from 'axios';
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'production') {
+  // vercel to render deployment
+  axios.defaults.baseURL = 'https://school-qms.onrender.com'; 
+} else {
+  // local backend
   axios.defaults.baseURL = 'http://localhost:5001';
 }
 
