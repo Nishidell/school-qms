@@ -1,13 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-// Import your pages
 import Home from './pages/Home';
 import Kiosk from './pages/Kiosk';
 import Display from './pages/Display';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
-import EmployeeDashboard from './pages/EmployeeDashboard'; // Assuming you have this
+import Employee from './pages/EmployeeDashboard';
 
 function App() {
   return (
@@ -20,12 +18,12 @@ function App() {
         <Route path="/kiosk" element={<Kiosk />} />
         <Route path="/display" element={<Display />} />
 
-        {/* The Authentication Endpoint */}
+        {/* Authentication */}
         <Route path="/login" element={<Login />} />
 
         {/* The Protected Portals */}
         <Route path="/admin" element={<Admin />} />
-        <Route path="/staff" element={<EmployeeDashboard />} />
+        <Route path="/employee" element={<Employee />} /> 
       </Routes>
     </Router>
   );
