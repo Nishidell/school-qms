@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path'); // <--- MOVED TO THE TOP!
 require('dotenv').config();
 
 // Initialize the database connection
@@ -22,12 +23,12 @@ app.use('/api/users', require('./routes/userRoutes'));
 
 app.use('/api/services', require('./routes/serviceRoutes'));
 
+// This line works perfectly now because 'path' is at the top!
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/settings', require('./routes/settingRoutes'));
 
 // --- DEPLOYMENT MERGE ---
-const path = require('path');
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Catch-all route: Send everything else to React
@@ -35,10 +36,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
-/*app.get('/', (req, res) => {
-  res.send('School Queueing System API is running on XAMPP MySQL...');
-});*/
-
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
