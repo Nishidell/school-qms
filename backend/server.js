@@ -9,6 +9,8 @@ require('./db');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const fs = require('fs');
+
 app.use(cors());
 app.use(express.json());
 
@@ -23,7 +25,15 @@ app.use('/api/users', require('./routes/userRoutes'));
 
 app.use('/api/services', require('./routes/serviceRoutes'));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// --- CREATE UPLOADS FOLDER IF IT DOESN'T EXIST ---
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log("📁 Created uploads directory");
+}
+
+// Serve the uploads folder
+app.use('/uploads', express.static(uploadDir));
 
 app.use('/api/settings', require('./routes/settingRoutes'));
 
