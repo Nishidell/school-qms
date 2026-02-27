@@ -17,27 +17,38 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. Fetch System Settings (Colors & Logo)
+    // 1. Fetch System Settings
     axios.get('/api/settings')
       .then(res => setSettings(res.data))
-      .catch(err => console.error(err));
+      .catch(err => console.error("Settings error:", err));
 
-    // 2. Fetch Carousel Images
+    // 2. Fetch Carousel Images (WITH SAFETY CHECK)
     axios.get('/api/settings/carousel')
-      .then(res => setCarouselImages(res.data))
-      .catch(err => console.error(err));
+      .then(res => {
+        // Only set the images if the response is actually an array!
+        if (Array.isArray(res.data)) {
+          setCarouselImages(res.data);
+        } else {
+          console.warn("API did not return an array for carousel images.");
+          setCarouselImages([]); 
+        }
+      })
+      .catch(err => {
+        console.error("Carousel fetch error:", err);
+        setCarouselImages([]); // Force empty array on error
+      });
   }, []);
 
   // 3. Auto-play the carousel every 5 seconds
   useEffect(() => {
-    if (carouselImages.length <= 1) return; // Don't run timer if there's only 0 or 1 image
+    if (!Array.isArray(carouselImages) || carouselImages.length <= 1) return; 
     
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
     }, 5000); 
     
-    return () => clearInterval(interval); // Cleanup timer to prevent memory leaks
-  }, [carouselImages.length]);
+    return () => clearInterval(interval); 
+  }, [carouselImages]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -55,12 +66,10 @@ function Login() {
     }
   };
 
-  // Function to go to the next slide
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
   };
 
-  // Function to go to the previous slide
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
   };
@@ -69,15 +78,15 @@ function Login() {
     <div className="login-split-container">
       
       {/* LEFT SIDE: CAROUSEL WITH CONTROLS */}
-      {/* We use the secondary color as the background padding */}
       <div className="login-left-carousel" style={{ backgroundColor: settings?.secondary_color || '#000' }}>
         
         <div className="carousel-container">
-          {carouselImages.length > 0 ? (
+          {/* BULLETPROOF ARRAY CHECK */}
+          {Array.isArray(carouselImages) && carouselImages.length > 0 ? (
             <>
               {/* The Images */}
               {carouselImages.map((img, index) => (
-                <div key={img.id} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}>
+                <div key={img.id || index} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}>
                   <img 
                     src={`/uploads/${img.image_path}`} 
                     alt={`Slide ${index}`} 
@@ -86,7 +95,7 @@ function Login() {
                 </div>
               ))}
 
-              {/* Arrow Buttons (Only show if more than 1 image) */}
+              {/* Arrow Buttons */}
               {carouselImages.length > 1 && (
                 <>
                   <button className="carousel-arrow left" onClick={prevSlide}>
@@ -104,13 +113,13 @@ function Login() {
                   <button 
                     key={index} 
                     className={`indicator-dot ${index === currentSlide ? 'active' : ''}`}
-                    onClick={() => setCurrentSlide(index)} // Click a dot to jump to that slide
+                    onClick={() => setCurrentSlide(index)} 
                   />
                 ))}
               </div>
             </>
           ) : (
-            // Fallback placeholder if no images exist
+            // Fallback placeholder if no images exist or API fails
             <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white' }}>
               Currently no images uploaded.
             </div>
@@ -118,11 +127,10 @@ function Login() {
         </div>
       </div>
 
-      {/* RIGHT SIDE: FORM WITH DYNAMIC GRADIENT */}
+      {/* RIGHT SIDE: FORM */}
       <div 
         className="login-right-form" 
         style={{ 
-          // This creates a sleek gradient fading from pure white into the Superadmin's secondary color!
           background: `linear-gradient(135deg, #ffffff 40%, ${settings?.secondary_color || '#2c3e50'} 100%)` 
         }}
       >

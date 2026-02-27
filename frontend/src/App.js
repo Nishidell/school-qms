@@ -6,6 +6,11 @@ import Display from './pages/Display';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
 import Employee from './pages/EmployeeDashboard';
+import axios from 'axios';
+
+if (process.env.NODE_ENV !== 'production') {
+  axios.defaults.baseURL = 'http://localhost:5001';
+}
 
 function App() {
   return (

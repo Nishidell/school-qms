@@ -14,7 +14,6 @@ const fs = require('fs');
 app.use(cors());
 app.use(express.json());
 
-// Tell the server to use our MySQL routes
 const ticketRoutes = require('./routes/ticketRoutes');
 app.use('/api/tickets', ticketRoutes);
 
