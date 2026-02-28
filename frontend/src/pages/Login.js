@@ -25,7 +25,6 @@ function Login() {
     // 2. Fetch Carousel Images (WITH SAFETY CHECK)
     axios.get('/api/settings/carousel')
       .then(res => {
-        // Only set the images if the response is actually an array!
         if (Array.isArray(res.data)) {
           setCarouselImages(res.data);
         } else {
@@ -35,7 +34,7 @@ function Login() {
       })
       .catch(err => {
         console.error("Carousel fetch error:", err);
-        setCarouselImages([]); // Force empty array on error
+        setCarouselImages([]); 
       });
   }, []);
 
@@ -88,7 +87,7 @@ function Login() {
               {carouselImages.map((img, index) => (
                 <div key={img.id || index} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}>
                   <img 
-                    src={`/uploads/${img.image_path}`} 
+                    src={img.image_path} 
                     alt={`Slide ${index}`} 
                     className="carousel-image"
                   />
@@ -119,7 +118,7 @@ function Login() {
               </div>
             </>
           ) : (
-            // Fallback placeholder if no images exist or API fails
+            // Fallback placeholder
             <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white' }}>
               Currently no images uploaded.
             </div>
@@ -136,11 +135,7 @@ function Login() {
       >
         <div className="login-card">
           
-          {settings?.logo_path ? (
-            <img src={`/uploads/${settings.logo_path}`} alt="School Logo" className="login-logo" />
-          ) : (
-            <h2 style={{ color: '#2c3e50', margin: '0 0 20px 0' }}>Staff Portal</h2>
-          )}
+          <img src={settings?.logo_path} alt="School Logo" className="login-logo" />
           
           <h3 style={{ color: '#7f8c8d', margin: '0 0 30px 0', fontSize: '16px', fontWeight: 'normal' }}>
             Sign in to manage the queue

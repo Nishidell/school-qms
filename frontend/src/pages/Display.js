@@ -5,7 +5,7 @@ import './Display.css';
 function Display() {
   const [activeCounters, setActiveCounters] = useState([]);
   
-  // NEW: State to hold the services so we know their custom window names
+  // State to hold the services so we know their custom window names
   const [services, setServices] = useState([]);
   
   const [settings, setSettings] = useState({
@@ -27,7 +27,7 @@ function Display() {
       if (res.data) setSettings(res.data);
     }).catch(err => console.error(err));
 
-    // NEW: Fetch Services list so we can map departments to their custom windows
+    // Fetch Services list so we can map departments to their custom windows
     axios.get('/api/services').then(res => {
       if (res.data) setServices(res.data);
     }).catch(err => console.error(err));
@@ -37,7 +37,7 @@ function Display() {
         const res = await axios.get('/api/tickets/serving');
         const tickets = res.data;
         
-        // 🚨 CRUCIAL DEBUGGER: This will print the exact database info to your browser!
+        // CRUCIAL DEBUGGER: This will print the exact database info to your browser!
         console.log("🔍 TICKETS FROM DATABASE:", tickets);
         
         const uniqueCounters = {};
@@ -69,11 +69,7 @@ function Display() {
       <div className="display-header" style={{ borderBottom: `5px solid ${settings.primary_color}`, backgroundColor: 'rgba(0,0,0,0.3)' }}>
         <div className="header-box" style={{ backgroundColor: 'transparent' }}>
           {settings.logo_path ? (
-            <img 
-              src={`/uploads/${settings.logo_path}`} 
-              alt="School Logo" 
-              style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} 
-            />
+            <img src={settings.logo_path} alt="School Logo" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}/>
           ) : (
             <h2 style={{ color: 'white' }}>[ Logo Area ]</h2>
           )}
@@ -82,7 +78,7 @@ function Display() {
         <div className="header-video">
           <video key={settings.video_path} autoPlay muted loop playsInline>
             <source 
-              src={settings.video_path ? `/uploads/${settings.video_path}` : `${process.env.PUBLIC_URL}/school-video.mp4`} 
+              src={settings.video_path || `${process.env.PUBLIC_URL}/school-video.mp4`} 
               type="video/mp4" 
             />
           </video>
@@ -105,16 +101,16 @@ function Display() {
         <div style={{ 
           width: '100%', 
           textAlign: 'center', 
-          padding: '5px 0', /* Much tighter padding */
+          padding: '5px 0', 
           backgroundColor: 'rgba(0,0,0,0.2)', 
-          marginBottom: '10px', /* Reduced gap below the header */
+          marginBottom: '10px', 
           borderBottom: `2px solid ${settings.primary_color}40`,
           borderRadius: '10px'
         }}>
           <h1 style={{ 
             margin: 0, 
             color: settings.primary_color, 
-            fontSize: '2rem', /* Scaled down for a sleek banner look */
+            fontSize: '2rem', 
             fontWeight: '900', 
             textTransform: 'uppercase', 
             letterSpacing: '5px',
@@ -137,15 +133,15 @@ function Display() {
               return (
                 <div key={ticket.ticketNumber} className="window-card" style={{ 
                   borderTop: `8px solid ${settings.primary_color}`, 
-                  padding: '15px' /* Tighter internal box padding */
+                  padding: '15px' 
                 }}>
                   
                   {/* TICKET NUMBER */}
                   <h1 className="window-ticket" style={{ 
                     color: settings.primary_color, 
                     textShadow: `0 0 15px ${settings.primary_color}80`,
-                    fontSize: '3.5rem', /* Scaled down slightly to save height */
-                    margin: '0 0 5px 0', /* Tighter bottom margin */
+                    fontSize: '3.5rem', 
+                    margin: '0 0 5px 0', 
                     lineHeight: '1'
                   }}>
                     {ticket.ticketNumber}
@@ -157,7 +153,7 @@ function Display() {
                        Proceed To:
                      </h3>
                      <h2 className="window-title" style={{ 
-                       fontSize: '1.4rem', /* Scaled down from 1.8rem */
+                       fontSize: '1.4rem', 
                        color: 'white', 
                        margin: '2px 0 0 0' 
                      }}>

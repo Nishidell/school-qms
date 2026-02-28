@@ -474,7 +474,7 @@ const startEdit = (service) => {
            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
              {carouselImages.map(img => (
                <div key={img.id} style={{ position: 'relative', minWidth: '150px' }}>
-                 <img src={`/uploads/${img.image_path}`} alt="Carousel" style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                <img src={img.image_path} alt="Carousel" style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
                  <button onClick={() => deleteCarouselImage(img.id)} style={{ position: 'absolute', top: '5px', right: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer' }}>X</button>
                </div>
              ))}

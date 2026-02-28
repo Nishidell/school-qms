@@ -9,7 +9,7 @@ function Kiosk() {
 
   const [printedTicket, setPrintedTicket] = useState(null);
   
-  // NEW: State to hold our dynamic settings
+  // State to hold our dynamic settings
   const [settings, setSettings] = useState({
     primary_color: '#27ae60', // Default green
     secondary_color: '#2c3e50', // Default dark blue
@@ -22,7 +22,7 @@ function Kiosk() {
       .then(res => setServices(res.data))
       .catch(err => console.error(err));
 
-    // NEW: Fetch Settings
+    // Fetch Settings
     axios.get('/api/settings')
       .then(res => {
         if (res.data) setSettings(res.data);
@@ -91,7 +91,7 @@ return (
             textTransform: 'uppercase', 
             letterSpacing: '2px', 
             fontWeight: 'bold',
-            textShadow: '0 4px 10px rgba(0,0,0,0.3)' /* Gives the text a nice pop against the dots */
+            textShadow: '0 4px 10px rgba(0,0,0,0.3)' 
           }}>
             Transaction Queuing Management System
           </h1>
@@ -125,9 +125,10 @@ return (
           {/* RIGHT HALF (65% Width) */}
           <div style={{ width: '65%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px 40px 20px 20px' }}>
             <div className="video-wrapper">
+              {/* CLOUDINARY VIDEO FIX */}
               <video key={settings.video_path} autoPlay muted loop playsInline className="video-player">
                 <source 
-                  src={settings.video_path ? `/uploads/${settings.video_path}` : `${process.env.PUBLIC_URL}/school-video.mp4`} 
+                  src={settings.video_path || `${process.env.PUBLIC_URL}/school-video.mp4`} 
                   type="video/mp4" 
                 />
               </video>
@@ -141,11 +142,7 @@ return (
       {printedTicket && (
         <div className="receipt-container">
           {settings.logo_path && (
-            <img 
-              src={`/uploads/${settings.logo_path}`} 
-              alt="Logo" 
-              style={{ maxWidth: '100px', marginBottom: '10px', filter: 'grayscale(100%)' }} 
-            />
+            <img src={settings.logo_path} alt="Logo" style={{ maxWidth: '100px', marginBottom: '10px', filter: 'grayscale(100%)' }}/>
           )}
           <div className="receipt-header">QUEUE SYSTEM</div>
           <div className="receipt-details"><strong>Name:</strong> {printedTicket.name}</div>
@@ -160,4 +157,3 @@ return (
 }
 
 export default Kiosk;
-
