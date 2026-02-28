@@ -4,10 +4,7 @@ import './Display.css';
 
 function Display() {
   const [activeCounters, setActiveCounters] = useState([]);
-  
-  // State to hold the services so we know their custom window names
   const [services, setServices] = useState([]);
-  
   const [settings, setSettings] = useState({
     primary_color: '#f1c40f', 
     secondary_color: '#1b263b', 
@@ -27,7 +24,7 @@ function Display() {
       if (res.data) setSettings(res.data);
     }).catch(err => console.error(err));
 
-    // Fetch Services list so we can map departments to their custom windows
+    // Fetch Services list
     axios.get('/api/services').then(res => {
       if (res.data) setServices(res.data);
     }).catch(err => console.error(err));
@@ -37,15 +34,10 @@ function Display() {
         const res = await axios.get('/api/tickets/serving');
         const tickets = res.data;
         
-        // CRUCIAL DEBUGGER: This will print the exact database info to your browser!
-        console.log("🔍 TICKETS FROM DATABASE:", tickets);
-        
         const uniqueCounters = {};
         
         tickets.forEach(ticket => {
-          // THE BULLETPROOF FIX: We check every single possible name your database might be using
           const departmentName = ticket.service_type || ticket.serviceType || ticket.service || ticket.department || 'Unknown';
-          
           if (!uniqueCounters[departmentName]) {
             uniqueCounters[departmentName] = ticket;
           }
@@ -66,6 +58,7 @@ function Display() {
   return (
     <div className="display-container" style={{ backgroundColor: settings.secondary_color }}>
       
+      {/* HEADER: 50% HEIGHT */}
       <div className="display-header" style={{ borderBottom: `5px solid ${settings.primary_color}`, backgroundColor: 'rgba(0,0,0,0.3)' }}>
         <div className="header-box" style={{ backgroundColor: 'transparent' }}>
           {settings.logo_path ? (
@@ -84,79 +77,81 @@ function Display() {
           </video>
         </div>
         
+        {/* TIME: SCALED UP FONT SIZES */}
         <div className="header-box" style={{ backgroundColor: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', paddingRight: '40px' }}>
-          <h1 style={{ fontSize: '4rem', margin: '0', color: 'white', textShadow: `0 0 15px ${settings.primary_color}80`, fontWeight: 'bold', lineHeight: '1' }}>
+          <h1 style={{ fontSize: '5.5rem', margin: '0', color: 'white', textShadow: `0 0 15px ${settings.primary_color}80`, fontWeight: 'bold', lineHeight: '1' }}>
             {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </h1>
-          <h3 style={{ fontSize: '1.5rem', margin: '5px 0 0 0', color: settings.primary_color, textTransform: 'uppercase', letterSpacing: '2px' }}>
+          <h3 style={{ fontSize: '2rem', margin: '10px 0 0 0', color: settings.primary_color, textTransform: 'uppercase', letterSpacing: '2px' }}>
             {currentTime.toLocaleDateString([], { weekday: 'short', month: 'long', day: 'numeric' })}
           </h3>
         </div>
       </div>
 
-      {/* MAIN BODY */}
-      <div className="display-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '5px 20px' }}>
+      {/* BODY: 50% HEIGHT */}
+      <div className="display-body">
         
-        {/* 1. SLIMMER "NOW SERVING" HEADER BAR */}
+        {/* SLIMMER "NOW SERVING" BAR WITH ZERO DEAD SPACE */}
         <div style={{ 
           width: '100%', 
           textAlign: 'center', 
-          padding: '5px 0', 
+          padding: '2px 0', 
           backgroundColor: 'rgba(0,0,0,0.2)', 
-          marginBottom: '10px', 
+          marginBottom: '20px', 
           borderBottom: `2px solid ${settings.primary_color}40`,
-          borderRadius: '10px'
+          borderBottomLeftRadius: '10px',
+          borderBottomRightRadius: '10px'
         }}>
           <h1 style={{ 
             margin: 0, 
             color: settings.primary_color, 
-            fontSize: '2rem', 
+            fontSize: '2.5rem', 
             fontWeight: '900', 
             textTransform: 'uppercase', 
             letterSpacing: '5px',
-            textShadow: `0 0 15px ${settings.primary_color}60`
+            textShadow: `0 0 15px ${settings.primary_color}60`,
+            lineHeight: '1.2'
           }}>
             Now Serving
           </h1>
         </div>
 
+       {/* TICKETS GRID */}
         {activeCounters.length === 0 ? (
-          <h1 style={{ textAlign: 'center', color: 'white', opacity: 0.5, fontSize: '3rem', marginTop: '20px' }}>Waiting for tickets...</h1>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+            <h1 style={{ textAlign: 'center', color: 'white', opacity: 0.5, fontSize: '3rem' }}>Waiting for tickets...</h1>
+          </div>
         ) : (
           <div className="windows-grid">
-            {activeCounters.map(ticket => {
+            {/* .slice(0, 8) ensures we NEVER break the 4x2 grid, even if 10 windows are active */}
+            {activeCounters.slice(0, 8).map(ticket => {
               
-              const departmentName = ticket.service_type || ticket.serviceType || ticket.service || ticket.department || 'Unknown';
-              const serviceInfo = services.find(s => s.service_name === departmentName);
+              const rawDepartment = ticket.service_type || ticket.serviceType || ticket.service || ticket.department || 'Unknown';
+              const departmentName = String(rawDepartment);
+              const serviceInfo = services.find(s => 
+                String(s.service_name).toLowerCase().trim() === departmentName.toLowerCase().trim()
+              );
               const windowName = serviceInfo && serviceInfo.counter_name ? serviceInfo.counter_name : departmentName;
 
               return (
                 <div key={ticket.ticketNumber} className="window-card" style={{ 
-                  borderTop: `8px solid ${settings.primary_color}`, 
-                  padding: '15px' 
+                  borderTop: `8px solid ${settings.primary_color}` 
                 }}>
                   
                   {/* TICKET NUMBER */}
                   <h1 className="window-ticket" style={{ 
                     color: settings.primary_color, 
-                    textShadow: `0 0 15px ${settings.primary_color}80`,
-                    fontSize: '3.5rem', 
-                    margin: '0 0 5px 0', 
-                    lineHeight: '1'
+                    textShadow: `0 0 15px ${settings.primary_color}80`
                   }}>
                     {ticket.ticketNumber}
                   </h1>
 
                   {/* COUNTER LOCATION UNDERNEATH */}
-                  <div style={{ borderTop: '2px solid rgba(255,255,255,0.1)', paddingTop: '5px', width: '100%' }}>
-                     <h3 style={{ color: 'rgba(255,255,255,0.7)', margin: '0', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  <div style={{ borderTop: '2px solid rgba(255,255,255,0.1)', paddingTop: '8px', width: '100%' }}>
+                     <h3 style={{ color: 'rgba(255,255,255,0.7)', margin: '0', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                        Proceed To:
                      </h3>
-                     <h2 className="window-title" style={{ 
-                       fontSize: '1.4rem', 
-                       color: 'white', 
-                       margin: '2px 0 0 0' 
-                     }}>
+                     <h2 className="window-title" style={{ color: 'white' }}>
                        {windowName}
                      </h2>
                   </div>
