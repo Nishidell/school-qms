@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaPhoneAlt, FaMapMarkerAlt, FaFacebook } from 'react-icons/fa';
 import axios from 'axios';
 import './Display.css';
 
@@ -56,20 +57,53 @@ function Display() {
   }, []);
 
   return (
-    <div className="display-container" style={{ backgroundColor: settings.secondary_color }}>
+    <div className="display-container" style={{ backgroundColor: settings.secondary_color, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       
-      {/* HEADER: 50% HEIGHT */}
-      <div className="display-header" style={{ borderBottom: `5px solid ${settings.primary_color}`, backgroundColor: 'rgba(0,0,0,0.3)' }}>
-        <div className="header-box" style={{ backgroundColor: 'transparent' }}>
-          {settings.logo_path ? (
-            <img src={settings.logo_path} alt="School Logo" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}/>
-          ) : (
-            <h2 style={{ color: 'white' }}>[ Logo Area ]</h2>
-          )}
+      {/* =========================================
+          1. HEADER SECTION (Exactly 45% Height)
+          ========================================= */}
+      <div className="display-header" style={{ height: '45%', display: 'flex', width: '100%', padding: '15px 20px 0 20px', boxSizing: 'border-box', backgroundColor: 'rgba(0,0,0,0.3)' }}>
+        
+        {/* 1. LOGO & CONTACT INFO (Left) */}
+        <div className="header-box" style={{ flex: 1, backgroundColor: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', paddingLeft: '30px' }}>
+          
+          {/* LOGO: Now Left-Aligned to match the text perfectly */}
+          <div style={{ height: '130px', marginBottom: '15px' }}>
+            {settings.logo_path ? (
+              <img src={settings.logo_path} alt="School Logo" style={{ height: '100%', objectFit: 'contain' }}/>
+            ) : (
+              <h2 style={{ color: 'white', margin: '0' }}>[ Logo Area ]</h2>
+            )}
+          </div>
+          
+          {/* CONTACT INFO: Clean spacing, fixed line-heights, manual address break */}
+          <div style={{ color: 'white', fontSize: '0.9rem', opacity: 0.95, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <FaPhoneAlt size={14} color={settings.primary_color} style={{ flexShrink: 0 }} /> 
+              <span style={{ fontWeight: '500', letterSpacing: '0.5px' }}>+63917 137 9827</span>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <FaMapMarkerAlt size={16} color={settings.primary_color} style={{ marginTop: '2px', flexShrink: 0 }} /> 
+              <span style={{ lineHeight: '1.4', letterSpacing: '0.5px' }}>
+                664 Electron Bldg. Quirino Highway,<br/>Bagbag, Novaliches Quezon City
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <FaFacebook size={16} color={settings.primary_color} style={{ marginTop: '2px', flexShrink: 0 }} /> 
+              <span style={{ lineHeight: '1.4', letterSpacing: '0.5px' }}>
+                Electron College of Technical Education
+              </span>
+            </div>
+
+          </div>
         </div>
         
-        <div className="header-video">
-          <video key={settings.video_path} autoPlay muted loop playsInline>
+        {/* VIDEO (Center) */}
+        <div className="header-video" style={{ flex: 1.5, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 20px', height: '100%' }}>
+          <video key={settings.video_path} autoPlay muted loop playsInline style={{ width: '100%', maxHeight: '100%', objectFit: 'contain',  borderRadius: '15px', filter: 'drop-shadow(0 8px 15px rgba(0,0,0,0.4))' }}>
             <source 
               src={settings.video_path || `${process.env.PUBLIC_URL}/school-video.mp4`} 
               type="video/mp4" 
@@ -77,27 +111,57 @@ function Display() {
           </video>
         </div>
         
-        {/* TIME: SCALED UP FONT SIZES */}
-        <div className="header-box" style={{ backgroundColor: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', paddingRight: '40px' }}>
-          <h1 style={{ fontSize: '5.5rem', margin: '0', color: 'white', textShadow: `0 0 15px ${settings.primary_color}80`, fontWeight: 'bold', lineHeight: '1' }}>
+        {/* CAMPUS BRANCH & TIME (Right) */}
+        <div className="header-box" style={{ flex: 1, backgroundColor: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <h2 style={{ fontSize: '1.8rem', margin: '0 0 10px 0', color: settings.primary_color, textTransform: 'uppercase', letterSpacing: '2px' }}>
+            Main Campus
+          </h2>
+          <h1 style={{ fontSize: '4.8rem', margin: '0', color: 'white', textShadow: `0 0 15px ${settings.primary_color}80`, fontWeight: 'bold', lineHeight: '1', whiteSpace: 'nowrap' }}>
             {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </h1>
-          <h3 style={{ fontSize: '2rem', margin: '10px 0 0 0', color: settings.primary_color, textTransform: 'uppercase', letterSpacing: '2px' }}>
+          <h3 style={{ fontSize: '1.8rem', margin: '10px 0 0 0', color: 'white', textTransform: 'uppercase', letterSpacing: '2px' }}>
             {currentTime.toLocaleDateString([], { weekday: 'short', month: 'long', day: 'numeric' })}
           </h3>
         </div>
       </div>
 
-      {/* BODY: 50% HEIGHT */}
-      <div className="display-body">
+
+      {/* =========================================
+          2. MARQUEE SECTION
+          ========================================= */}
+      <div style={{ 
+        height: '5%', 
+        width: '100%', 
+        backgroundColor: settings.primary_color, 
+        color: settings.secondary_color, 
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '1.2rem', 
+        fontWeight: 'bold', 
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        borderBottom: `5px solid ${settings.primary_color}`, 
+        boxShadow: '0 4px 10px rgba(0,0,0,0.4)',
+        zIndex: 10
+      }}>
+        <marquee scrollamount="10" style={{ width: '100%' }}>
+          For more details and updates, please visit our official website at electroncollege.edu.ph and our Facebook page, Electron College of Technical Education.
+        </marquee>
+      </div>
+
+
+      {/* =========================================
+          3. BODY SECTION (Exactly 50% Height)
+          ========================================= */}
+      <div className="display-body" style={{ height: '50%', padding: '10px 20px 20px 20px', display: 'flex', flexDirection: 'column' }}>
         
-        {/* SLIMMER "NOW SERVING" BAR WITH ZERO DEAD SPACE */}
+        {/* NOW SERVING BAR */}
         <div style={{ 
           width: '100%', 
           textAlign: 'center', 
-          padding: '2px 0', 
+          padding: '1px 0', 
           backgroundColor: 'rgba(0,0,0,0.2)', 
-          marginBottom: '20px', 
+          marginBottom: '2px', 
           borderBottom: `2px solid ${settings.primary_color}40`,
           borderBottomLeftRadius: '10px',
           borderBottomRightRadius: '10px'
@@ -110,7 +174,7 @@ function Display() {
             textTransform: 'uppercase', 
             letterSpacing: '5px',
             textShadow: `0 0 15px ${settings.primary_color}60`,
-            lineHeight: '1.2'
+            lineHeight: '0.7'
           }}>
             Now Serving
           </h1>
@@ -118,12 +182,11 @@ function Display() {
 
        {/* TICKETS GRID */}
         {activeCounters.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <h1 style={{ textAlign: 'center', color: 'white', opacity: 0.5, fontSize: '3rem' }}>Waiting for tickets...</h1>
           </div>
         ) : (
-          <div className="windows-grid">
-            {/* .slice(0, 8) ensures we NEVER break the 4x2 grid, even if 10 windows are active */}
+          <div className="windows-grid" style={{ flex: 1 }}>
             {activeCounters.slice(0, 8).map(ticket => {
               
               const rawDepartment = ticket.service_type || ticket.serviceType || ticket.service || ticket.department || 'Unknown';
@@ -135,7 +198,7 @@ function Display() {
 
               return (
                 <div key={ticket.ticketNumber} className="window-card" style={{ 
-                  borderTop: `8px solid ${settings.primary_color}` 
+                  borderTop: `5px solid ${settings.primary_color}` 
                 }}>
                   
                   {/* TICKET NUMBER */}
@@ -162,6 +225,7 @@ function Display() {
           </div>
         )}
       </div>
+      
     </div>
   );
 }
